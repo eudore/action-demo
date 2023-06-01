@@ -23,14 +23,14 @@ jobs:
     env:
       WORKDIR: ~/go/src/github.com/eudore/eudore
       GOPATH2: $GITHUB_WORKSPACE:$GOPATH
-      GOPATH: ~/go:/home/runner/work/action-demo/action-demo
+      GOPATH: /home/runner/go:/home/runner/work/action-demo/action-demo
       GO111MODULE: off
       CGO_ENABLED: 1
       GOPROXY: https://proxy.golang.org
     steps:
       - uses: actions/checkout@v3
         with:
-          path: go/src/github.com/eudore/eudore
+          path: src/github.com/eudore/eudore
       - uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
@@ -51,4 +51,4 @@ jobs:
           go env
           pwd
       - name: Run Tests
-        run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' go/src/github.com/eudore/eudore/_example/*_test.go
+        run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' src/github.com/eudore/eudore/_example/*_test.go
