@@ -45,10 +45,10 @@ jobs:
       - name: Run goget 
         run: |
           cd src/github.com/eudore/eudore/_example/
-          sudo go get -v bou.ke/monkey
+          go get -v bou.ke/monkey
           for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep github | grep -v eudore)
           do
-            sodu go get -v $pkg
+            go get -v $pkg
           done
       - name: Run Tests
         working-directory: src/github.com/eudore/eudore/_example/
