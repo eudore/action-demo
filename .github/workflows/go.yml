@@ -45,7 +45,7 @@ jobs:
             ${{ runner.os }}-go-
       - name: Run goget 
         run: |
-          rm -f logger_test.go
+          rm -f _example/logger_test.go
           go get -v bou.ke/monkey
           for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep github | grep -v eudore); do go get -v $pkg; done
       - name: Run Tests
