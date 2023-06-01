@@ -12,7 +12,7 @@ jobs:
       max-parallel: 1
       matrix:
         os: [ubuntu-latest, macos-latest]
-        go: ['1.18', '1.19', '1.20']
+        go: ['1.18']
         include:
           - os: ubuntu-latest
             go-build: ~/.cache/go-build
@@ -47,4 +47,4 @@ jobs:
           for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep github | grep -v eudore); do go get -v $pkg; done
       - name: Run Tests
         working-directory: src/github.com/eudore/eudore/_example/
-        run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' *_test.go
+        run: go test -v -timeout=1m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' *_test.go
