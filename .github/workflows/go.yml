@@ -21,7 +21,7 @@ jobs:
     name: ${{ matrix.os }} @ Go ${{ matrix.go }} ${{ matrix.test-tags }}
     runs-on: ${{ matrix.os }}
     env:
-      GO111MODULE: off
+      GO111MODULE: on
       CGO_ENABLED: 1
       GOPROXY: https://proxy.golang.org
     steps:
