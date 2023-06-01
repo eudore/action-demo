@@ -55,4 +55,4 @@ jobs:
           ls
           pwd
       - name: Run Tests
-        run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' $WORKDIR/_example/*_test.go
+        run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' go/src/github.com/eudore/eudore/_example/*_test.go
