@@ -48,6 +48,7 @@ jobs:
           go get -v github.com/gobwas/ws
           go get -v github.com/gobwas/ws/wsutil
           go get -v github.com/google/uuid
+          go get -v github.com/kr/pretty
           go env
           pwd
       - name: Run Tests
