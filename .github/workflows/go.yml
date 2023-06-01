@@ -1,9 +1,9 @@
 name: Run Tests
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 permissions:
   contents: read
 defaults:
@@ -15,7 +15,7 @@ jobs:
       max-parallel: 1
       matrix:
         os: [ubuntu-latest, macos-latest]
-        go: ['1.18']
+        go: ["1.18"]
         include:
           - os: ubuntu-latest
             gopath: /home/runner/go
@@ -26,8 +26,8 @@ jobs:
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}
     env:
-      GOPATH: ${{ matrix.gopath }}:${{ github.workspace }}
       GO111MODULE: off
+      GOPATH: ${{ matrix.gopath }}:${{ github.workspace }}
       CGO_ENABLED: 1
     steps:
       - uses: actions/checkout@v3
@@ -47,7 +47,6 @@ jobs:
       - name: Run goget 
         run: |
           rm -f _example/logger_test.go
-          go get -v bou.ke/monkey
-          for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep github | grep -v eudore); do go get -v $pkg; done
+          for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep -E "github|monkey" | grep -v eudore); do go get -v $pkg; done
       - name: Run Tests
         run: go test -v -timeout=1m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' _example/*_test.go
