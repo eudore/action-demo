@@ -20,11 +20,9 @@ jobs:
           - os: ubuntu-latest
             gopath: /home/runner/go
             gocache: /home/runner/.cache/go-build
-            go-build: ~/.cache/go-build
           - os: macos-latest
             gopath: /Users/runner/go
             gocache: /Users/runner/Library/Caches/go-build
-            go-build: ~/Library/Caches/go-build
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}
     env:
