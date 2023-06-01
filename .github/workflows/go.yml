@@ -14,7 +14,7 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [macos-latest, ubuntu-latest]
         go: ["1.18"]
         include:
           - os: ubuntu-latest
