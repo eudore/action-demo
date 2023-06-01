@@ -45,10 +45,10 @@ jobs:
       - name: Run goget 
         run: |
           go get -v bou.ke/monkey
-          go get -v github.com/gobwas/ws
-          go get -v github.com/gobwas/ws/wsutil
-          go get -v github.com/google/uuid
-          go get -v github.com/kr/pretty
+          for pkg in $(go list -json _example/*_test.go | jq '.XTestImports[]' | grep github | grep -v eudore)
+          do
+            go get -v $pkg
+          done
           go env
           pwd
       - name: Run Tests
