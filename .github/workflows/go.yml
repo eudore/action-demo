@@ -18,13 +18,15 @@ jobs:
         go: ['1.18']
         include:
           - os: ubuntu-latest
+            gopath: ~/go
             go-build: ~/.cache/go-build
           - os: macos-latest
+            gopath: ~/go
             go-build: ~/Library/Caches/go-build
     name: ${{ matrix.os }} @ Go ${{ matrix.go }} ${{ matrix.test-tags }}
     runs-on: ${{ matrix.os }}
     env:
-      GOPATH: /home/runner/go:/home/runner/work/action-demo/action-demo
+      GOPATH: ${{ matrix.gopath }}:/home/runner/work/action-demo/action-demo
       GO111MODULE: off
       CGO_ENABLED: 1
     steps:
@@ -44,6 +46,8 @@ jobs:
             ${{ runner.os }}-go-
       - name: Run goget 
         run: |
+          echo ${{ github.workspace }}
+          go env
           rm -f logger_test.go
           go get -v bou.ke/monkey
           for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep github | grep -v eudore); do go get -v $pkg; done
