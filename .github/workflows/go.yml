@@ -6,6 +6,9 @@ on:
     branches: [ "master" ]
 permissions:
   contents: read
+defaults:
+ run:
+  working-directory: src/github.com/eudore/eudore/_example/
 jobs:
   test:
     strategy:
@@ -36,15 +39,13 @@ jobs:
           path: |
             ${{ matrix.go-build }}
             ~/go
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-go-${{ hashFiles('go.mod') }}
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Run goget 
-        working-directory: src/github.com/eudore/eudore/_example/
         run: |
           rm -f logger_test.go
           go get -v bou.ke/monkey
           for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep github | grep -v eudore); do go get -v $pkg; done
       - name: Run Tests
-        working-directory: src/github.com/eudore/eudore/_example/
         run: go test -v -timeout=1m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' *_test.go
