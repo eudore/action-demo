@@ -18,15 +18,15 @@ jobs:
         go: ['1.18']
         include:
           - os: ubuntu-latest
-            gopath: ~/go
+            home: /home/runner/work
             go-build: ~/.cache/go-build
           - os: macos-latest
-            gopath: ~/go
+            home: /Users/runner/work
             go-build: ~/Library/Caches/go-build
     name: ${{ matrix.os }} @ Go ${{ matrix.go }} ${{ matrix.test-tags }}
     runs-on: ${{ matrix.os }}
     env:
-      GOPATH: ${{ matrix.gopath }}:/home/runner/work/action-demo/action-demo
+      GOPATH: ${{ matrix.home }}/go:/home/runner/work/action-demo/action-demo
       GO111MODULE: off
       CGO_ENABLED: 1
     steps:
