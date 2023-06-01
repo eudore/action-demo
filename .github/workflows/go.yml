@@ -22,7 +22,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       GO111MODULE: off
-      CGO_ENABLED: 0
+      CGO_ENABLED: 1
       GOPROXY: https://proxy.golang.org
     steps:
       - uses: actions/checkout@v3
