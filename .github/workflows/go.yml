@@ -21,12 +21,9 @@ jobs:
     name: ${{ matrix.os }} @ Go ${{ matrix.go }} ${{ matrix.test-tags }}
     runs-on: ${{ matrix.os }}
     env:
-      WORKDIR: ~/go/src/github.com/eudore/eudore
-      GOPATH2: $GITHUB_WORKSPACE:$GOPATH
       GOPATH: /home/runner/go:/home/runner/work/action-demo/action-demo
       GO111MODULE: off
       CGO_ENABLED: 1
-      GOPROXY: https://proxy.golang.org
     steps:
       - uses: actions/checkout@v3
         with:
