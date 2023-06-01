@@ -44,6 +44,7 @@ jobs:
             ${{ runner.os }}-go-
       - name: Run goget 
         run: |
+          cd src/github.com/eudore/eudore/_example/
           go get -v bou.ke/monkey
           for pkg in $(go list -json _example/*_test.go | jq '.XTestImports[]' | grep github | grep -v eudore)
           do
