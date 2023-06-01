@@ -43,16 +43,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: Run goget 
+        working-directory: src/github.com/eudore/eudore/_example/
         run: |
-          cd src/github.com/eudore/eudore/_example/
           go get -v bou.ke/monkey
-          for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep github | grep -v eudore)
-          do
-            go get -v $pkg
-          done
+          for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep github | grep -v eudore); do go get -v $pkg; done
+          mkdir logger
       - name: Run Tests1
         working-directory: src/github.com/eudore/eudore/_example/
         run: sudo pwd
       - name: Run Tests
         working-directory: src/github.com/eudore/eudore/_example/
-        run: sudo go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' *_test.go
+        run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' *_test.go
