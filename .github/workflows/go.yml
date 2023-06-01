@@ -18,13 +18,17 @@ jobs:
         go: ['1.18']
         include:
           - os: ubuntu-latest
+            gopath: /home/runner/go
+            gocache: /home/runner/.cache/go-build
             go-build: ~/.cache/go-build
           - os: macos-latest
+            gopath: /Users/runner/go
+            gocache: /Users/runner/Library/Caches/go-build
             go-build: ~/Library/Caches/go-build
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}
     env:
-      GOPATH: ${{ github.workspace }}
+      GOPATH: ${{ matrix.gopath }}:${{ github.workspace }}
       GO111MODULE: off
       CGO_ENABLED: 1
     steps:
@@ -37,8 +41,8 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: |
-            ${{ matrix.go-build }}
-            ~/go
+            ${{ matrix.gopath }}
+            ${{ matrix.gocache }}
           key: ${{ runner.os }}-go-${{ hashFiles('src/github.com/eudore/eudore/go.mod') }}
           restore-keys: |
             ${{ runner.os }}-go-
