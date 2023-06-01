@@ -52,5 +52,7 @@ jobs:
           go get -v github.com/gobwas/ws/wsutil
           go get -v github.com/google/uuid
           echo  $GITHUB_WORKSPACE:$GOPATH
+          ls
+          pwd
       - name: Run Tests
         run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' $WORKDIR/_example/*_test.go
