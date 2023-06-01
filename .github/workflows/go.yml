@@ -43,7 +43,7 @@ jobs:
         working-directory: src/github.com/eudore/eudore/_example/
         run: |
           go get -v bou.ke/monkey
-          for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep github | grep -v eudore); do echo $pkg; done
+          for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep github | grep -v eudore); do echo pkg; done
           mkdir logger
       - name: Run Tests1
         working-directory: src/github.com/eudore/eudore/_example/
