@@ -21,7 +21,7 @@ jobs:
     name: ${{ matrix.os }} @ Go ${{ matrix.go }} ${{ matrix.test-tags }}
     runs-on: ${{ matrix.os }}
     env:
-      GO111MODULE: on
+      GO111MODULE: off
       CGO_ENABLED: 1
       GOPROXY: https://proxy.golang.org
     steps:
@@ -37,5 +37,11 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Run goget 
+        run: |
+          go get -v bou.ke/monkey
+          go get -v github.com/gobwas/ws
+          go get -v github.com/gobwas/ws/wsutil
+          go get -v github.com/google/uuid
       - name: Run Tests
         run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' _example/*_test.go
