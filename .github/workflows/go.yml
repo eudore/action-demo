@@ -17,12 +17,12 @@ jobs:
         os: [macos-latest, ubuntu-latest]
         go: ["1.18"]
         include:
-          - os: ubuntu-latest
-            gopath: /home/runner/go
-            gocache: /home/runner/.cache/go-build
           - os: macos-latest
             gopath: /Users/runner/go
             gocache: /Users/runner/Library/Caches/go-build
+          - os: ubuntu-latest
+            gopath: /home/runner/go
+            gocache: /home/runner/.cache/go-build
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}
     env:
