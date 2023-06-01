@@ -38,15 +38,14 @@ jobs:
           go-version: ${{ matrix.go }}
       - uses: actions/cache@v3
         with:
+          key: ${{ runner.os }}-go-${{ hashFiles('src/github.com/eudore/eudore/go.mod') }}
+          restore-keys: ${{ runner.os }}-go-
           path: |
             ${{ matrix.gopath }}
             ${{ matrix.gocache }}
-          key: ${{ runner.os }}-go-${{ hashFiles('src/github.com/eudore/eudore/go.mod') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+      - name: Run Debug
+        run: rm -f _example/logger_test.go
       - name: Run goget 
-        run: |
-          rm -f _example/logger_test.go
-          for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep -E "github|monkey" | grep -v eudore); do go get -v $pkg; done
+        run: for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep -E "github|monkey" | grep -v eudore); do go get -v $pkg; done
       - name: Run Tests
         run: go test -v -timeout=1m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' _example/*_test.go
