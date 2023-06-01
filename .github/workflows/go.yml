@@ -9,7 +9,7 @@ permissions:
 jobs:
   test:
     strategy:
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         os: [ubuntu-latest, macos-latest]
         go: ['1.18', '1.19', '1.20']
@@ -26,6 +26,8 @@ jobs:
       GOPROXY: https://proxy.golang.org
     steps:
       - uses: actions/checkout@v3
+        with:
+          path: ~/go/src/github.com/eudore/eudore
       - uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
