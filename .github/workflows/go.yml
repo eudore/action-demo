@@ -48,7 +48,7 @@ jobs:
           go get -v bou.ke/monkey
           for pkg in $(go list -json *_test.go | jq '.XTestImports[]' | grep github | grep -v eudore)
           do
-            go get -v $pkg
+            go get -v "$pkg"
           done
           go env
           pwd
