@@ -21,13 +21,14 @@ jobs:
     name: ${{ matrix.os }} @ Go ${{ matrix.go }} ${{ matrix.test-tags }}
     runs-on: ${{ matrix.os }}
     env:
+      WORKDIR: ~/go/src/github.com/eudore/eudore
       GO111MODULE: off
       CGO_ENABLED: 1
       GOPROXY: https://proxy.golang.org
     steps:
       - uses: actions/checkout@v3
         with:
-          path: ~/go/src/github.com/eudore/eudore
+          path: $WORKDIR
       - uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
@@ -39,6 +40,8 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: get env
+        run: env
       - name: Run goget 
         run: |
           go get -v bou.ke/monkey
@@ -46,4 +49,4 @@ jobs:
           go get -v github.com/gobwas/ws/wsutil
           go get -v github.com/google/uuid
       - name: Run Tests
-        run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' _example/*_test.go
+        run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' $WORKDIR/_example/*_test.go
