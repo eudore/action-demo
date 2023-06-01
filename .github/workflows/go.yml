@@ -22,7 +22,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       WORKDIR: ~/go/src/github.com/eudore/eudore
-      GOPATH2: ${{GITHUB_WORKSPACE}}:${{GOPATH}}
+      GOPATH2: $GITHUB_WORKSPACE:$GOPATH
       GO111MODULE: off
       CGO_ENABLED: 1
       GOPROXY: https://proxy.golang.org
