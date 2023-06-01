@@ -22,13 +22,14 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       WORKDIR: ~/go/src/github.com/eudore/eudore
+      GOPATH2: GITHUB_WORKSPACE
       GO111MODULE: off
       CGO_ENABLED: 1
       GOPROXY: https://proxy.golang.org
     steps:
       - uses: actions/checkout@v3
         with:
-          path: $WORKDIR
+          path: go/src/github.com/eudore/eudore
       - uses: actions/setup-go@v4
         with:
           go-version: ${{ matrix.go }}
@@ -41,7 +42,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-go-
       - name: get env
-        run: env
+        run: |
+          env
+          go env
       - name: Run goget 
         run: |
           go get -v bou.ke/monkey
