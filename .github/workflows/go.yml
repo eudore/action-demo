@@ -22,7 +22,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       WORKDIR: ~/go/src/github.com/eudore/eudore
-      GOPATH2: GITHUB_WORKSPACE
+      GOPATH2: ${{ GITHUB_WORKSPACE }}:${{ GOPATH }}
       GO111MODULE: off
       CGO_ENABLED: 1
       GOPROXY: https://proxy.golang.org
@@ -51,5 +51,6 @@ jobs:
           go get -v github.com/gobwas/ws
           go get -v github.com/gobwas/ws/wsutil
           go get -v github.com/google/uuid
+          echo  ${{ GITHUB_WORKSPACE }}:${{ GOPATH }}
       - name: Run Tests
         run: go test -v -timeout=2m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' $WORKDIR/_example/*_test.go
