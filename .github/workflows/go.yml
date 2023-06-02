@@ -52,3 +52,10 @@ jobs:
         run: for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep -E "github|monkey" | grep -v eudore); do go get -v $pkg; done
       - name: Run Tests
         run: go test -v -timeout=1m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' _example/*_test.go
+      - name: Run Coverage
+        run: go tool cover -html coverage.out -o coverage.html  
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Coverage-eudore-${{ matrix.os }}-${{ matrix.go }}
+          path: coverage.html
+        
