@@ -30,7 +30,7 @@ jobs:
       GOPATH: ${{ matrix.gopath }}:${{ github.workspace }}
       CGO_ENABLED: 1
       WORKDIR: src/github.com/eudore/eudore/
-      PACKAGES: github.com/eudore/eudore github.com/eudore/eudore/middleware
+      PACKAGES: (github.com/eudore/eudore github.com/eudore/eudore/middleware)
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
