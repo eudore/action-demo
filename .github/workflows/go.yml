@@ -14,10 +14,9 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version-file: go.mod
-      - uses: golangci/golangci-lint-action@v3.4.0
+      - uses: golangci/golangci-lint-action@v3
         continue-on-error: true
         with:
-          version: v1.52.2
           args: --verbose --disable errcheck
   test:
     needs: lint
