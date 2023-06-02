@@ -46,7 +46,8 @@ jobs:
       - name: Run Debug
         run: rm -f _example/logger_test.go
       - name: D1
-        run: echo '{"time":"none","level":"ERROR","message":"open none_test.go: file does not exist"}'
+        run: |
+          echo '{"time":"none","level":"ERROR","message":"open none_test.go: file does not exist"}'
       - name: Run goget 
         run: for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep -E "github|monkey" | grep -v eudore); do go get -v $pkg; done
       - name: Run Tests
