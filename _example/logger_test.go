@@ -181,6 +181,7 @@ func TestLoggerWriterFile(t *testing.T) {
 
 func TestNewLoggerWriterRotate(t *testing.T) {
 	defer os.RemoveAll("logger")
+	defer os.RemoveAll("logger2")
 	{
 		// 占用一个索引文件 rotate跳过
 		os.Mkdir("logger", 0644)
@@ -198,7 +199,7 @@ func TestNewLoggerWriterRotate(t *testing.T) {
 	// date
 	log := eudore.NewLoggerStd(&eudore.LoggerStdConfig{
 		Std:  true,
-		Path: "logger/logger2-yyyy-MM-dd-HH-index.log",
+		Path: "logger2/logger-yyyy-MM-dd-HH-index.log",
 	})
 	log.Info("hello")
 
