@@ -30,6 +30,7 @@ jobs:
       GOPATH: ${{ matrix.gopath }}:${{ github.workspace }}
       CGO_ENABLED: 1
       WORKDIR: src/github.com/eudore/eudore/
+      PACKAGES: github.com/eudore/eudore github.com/eudore/eudore/middleware
     defaults:
       run:
         working-directory: ${{ env.WORKDIR }}
@@ -55,13 +56,14 @@ jobs:
       - name: Run goget 
         run: for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep -E "github|monkey" | grep -v eudore); do go get -v $pkg; done
       - name: Run Tests
-        run: go test -v -timeout=1m -race -cover -coverprofile=coverage.out -coverpkg='github.com/eudore/eudore,github.com/eudore/eudore/middleware' _example/*_test.go
+        run: go test -v -timeout=1m -race -cover -coverprofile=coverage.out -coverpkg='{{ join(env.PACKAGES) }}' _example/*_test.go
       - name: Run Coverage
         run: |
           go tool cover -html coverage.out -o coverage.html
           ls
+          echo '{{ join(env.PACKAGES) }}'
       - uses: actions/upload-artifact@v3
         with:
           name: Coverage-eudore-${{ matrix.os }}-${{ matrix.go }}
-          path: src/github.com/eudore/eudore/coverage.html
+          path: ${{ env.WORKDIR }}/coverage.html
         
