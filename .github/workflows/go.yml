@@ -29,10 +29,14 @@ jobs:
       GO111MODULE: off
       GOPATH: ${{ matrix.gopath }}:${{ github.workspace }}
       CGO_ENABLED: 1
+      WORKDIR: src/github.com/eudore/eudore/
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
     steps:
       - uses: actions/checkout@v3
         with:
-          path: src/github.com/eudore/eudore
+          path: ${{ env.WORKDIR }}
       - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
