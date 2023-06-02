@@ -58,6 +58,9 @@ jobs:
         run: |
           echo "##[error]xxx"
           echo "##[info]conv 22"
+          echo "::notice::my message text"
+
+
       - name: Run Coverage
         run: go tool cover -html coverage.out -o coverage.html
       - uses: actions/upload-artifact@v3
