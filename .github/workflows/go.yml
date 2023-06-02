@@ -56,7 +56,8 @@ jobs:
         run: go test -v -timeout=1m -race -cover -coverprofile=coverage.out -coverpkg='${{ env.PACKAGES }}' _example/*_test.go
       - name: D
         run: |
-          echo "##[info] conv 22"
+          echo "##[error]xxx"
+          echo "##[info]conv 22"
       - name: Run Coverage
         run: go tool cover -html coverage.out -o coverage.html
       - uses: actions/upload-artifact@v3
