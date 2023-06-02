@@ -14,17 +14,17 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos, ubuntu]
         go: ["1.18"]
         include:
-          - os: macos-latest
+          - os: macos
             gopath: /Users/runner/go
             gocache: /Users/runner/Library/Caches/go-build
-          - os: ubuntu-latest
+          - os: ubuntu
             gopath: /home/runner/go
             gocache: /home/runner/.cache/go-build
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}-latest
     env:
       GO111MODULE: off
       GOPATH: ${{ matrix.gopath }}:${{ github.workspace }}
