@@ -6,9 +6,6 @@ on:
     branches: ["master"]
 permissions:
   contents: read
-defaults:
- run:
-  working-directory: src/github.com/eudore/eudore/
 jobs:
   test:
     strategy:
