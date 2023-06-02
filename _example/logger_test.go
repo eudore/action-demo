@@ -198,7 +198,7 @@ func TestNewLoggerWriterRotate(t *testing.T) {
 	// date
 	log := eudore.NewLoggerStd(&eudore.LoggerStdConfig{
 		Std:  true,
-		Path: "logger/logger-yyyy-MM-dd-HH-index.log",
+		Path: "logger/logger2-yyyy-MM-dd-HH-index.log",
 	})
 	log.Info("hello")
 
