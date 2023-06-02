@@ -20,6 +20,7 @@ jobs:
           version: v1.52.2
           args: --verbose --disable errcheck
   test:
+    needs: lint
     strategy:
       max-parallel: 2
       matrix:
