@@ -18,7 +18,7 @@ jobs:
         continue-on-error: true
         with:
           version: v1.52.2
-          args: --verbose  --disable
+          args: --verbose --disable errcheck
   test:
     strategy:
       max-parallel: 2
