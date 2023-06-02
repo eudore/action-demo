@@ -7,6 +7,18 @@ on:
 permissions:
   contents: read
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '^1.18'
+      - uses: golangci/golangci-lint-action@v3.4.0
+        continue-on-error: true
+        with:
+          version: v1.52.2
+          args: --verbose  --disable
   test:
     strategy:
       max-parallel: 2
