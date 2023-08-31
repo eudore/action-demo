@@ -15,7 +15,7 @@ jobs:
       - uses: golangci/golangci-lint-action@v3
         continue-on-error: true
         with:
-          args: --verbose -c .github/workflows/golang-lint.yml
+          args: --verbose -c .github/workflows/golang-lint.json
   test:
     strategy:
       max-parallel: 2
