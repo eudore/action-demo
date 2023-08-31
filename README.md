@@ -1,6 +1,6 @@
 # Eudore
 
-[![Build Status](https://github.com/eudore/eudore/actions/workflows/action.yml/badge.svg)](https://github.com/eudore/eudore/actions/workflows/action.yml)
+[![Build Status](https://github.com/eudore/action-demo/actions/workflows/github-action.yml/badge.svg)](https://github.com/eudore/action-demo/actions/workflows/github-action.yml)
 [![godoc](https://godoc.org/github.com/eudore/eudore?status.svg)](https://godoc.org/github.com/eudore/eudore)
 [![go report card](https://goreportcard.com/badge/github.com/eudore/eudore)](https://goreportcard.com/report/github.com/eudore/eudore)
 [![codecov](https://codecov.io/gh/eudore/eudore/branch/master/graph/badge.svg)](https://codecov.io/gh/eudore/eudore)
