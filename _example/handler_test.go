@@ -50,8 +50,9 @@ func TestHandlerRoute(t *testing.T) {
 	os.Mkdir("static/", 0o755)
 	defer os.RemoveAll("static/")
 	os.WriteFile("static/403.js", []byte("1234567890abcdef"), 0o000)
+	file, _ := os.OpenFile("static/index.js", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 	for i := 0; i < 10000; i++ {
-		os.WriteFile("static/index.js", []byte("1234567890abcdef"), 0o644)
+		file.Write([]byte("1234567890abcdef"))
 	}
 
 	app := eudore.NewApp()
@@ -79,6 +80,7 @@ func TestHandlerRoute(t *testing.T) {
 	app.NewRequest(nil, "GET", "/static/embed/")
 	app.NewRequest(nil, "GET", "/static/embed/app_test.go")
 	app.NewRequest(nil, "GET", "/static/index/")
+	app.NewRequest(nil, "GET", "/static/index/static/")
 	app.NewRequest(nil, "GET", "/static/index/403.js")
 	app.NewRequest(nil, "GET", "/static/fs1/")
 	app.NewRequest(nil, "GET", "/static/fs2/")
@@ -93,7 +95,8 @@ func TestHandlerRoute(t *testing.T) {
 	))
 	app.NewRequest(nil, "GET", "/meta/")
 
-	app.CancelFunc()
+	app.Listen(":8088")
+	// app.CancelFunc()
 	app.Run()
 }
 
