@@ -214,7 +214,6 @@ type goroutineDebug2Line struct {
 
 func newGoroutineDebug1(str string) []goroutineDebug1Block {
 	reg := regexp.MustCompile(`#\t0x(\S+)\t(\S+)\+0x(\S+)(\s+)(\S+):(\d+)`)
-	str = strings.ReplaceAll(str, "\r", "\n")
 	routines := strings.Split(str[strings.IndexByte(str, '\n')+1:], "\n\n")
 	blocks := make([]goroutineDebug1Block, 0, len(routines))
 	for i := range routines {
@@ -222,12 +221,9 @@ func newGoroutineDebug1(str string) []goroutineDebug1Block {
 			continue
 		}
 
-		end := strings.IndexByte(routines[i], '\n')
-		if end == -1 {
-			end = len(routines[i])
-		}
+		arg, _, _ := strings.Cut(routines[i], "\n")
 		var block goroutineDebug1Block
-		block.Args = strings.Split(routines[i][:end], " ")
+		block.Args = strings.Split(arg, " ")
 		matchs := reg.FindAllStringSubmatch(routines[i], -1)
 		for _, m := range matchs {
 			block.Lines = append(block.Lines, goroutineDebug1Line{Pointer: m[1], Func: m[2], Pos: m[3], Space: m[4], File: m[5], Line: m[6]})
@@ -240,7 +236,6 @@ func newGoroutineDebug1(str string) []goroutineDebug1Block {
 func newGoroutineDebug2(str string) []goroutineDebug2Block {
 	reghead := regexp.MustCompile(`goroutine (\d+) \[(.*)\]`)
 	regline := regexp.MustCompile(`\n(\S+)\((.*)\)\n\t(\S+):(\d+)( \+0x\S+)?|\n(created by )(\S+)\n\t(\S+):(\d+) \+0x(\S+)`)
-	str = strings.ReplaceAll(str, "\r", "\n")
 	routines := strings.Split(str, "\n\n")
 	blocks := make([]goroutineDebug2Block, 0, len(routines))
 	for i := range routines {

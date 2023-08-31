@@ -128,7 +128,7 @@ func TestMiddlewareBreaker(*testing.T) {
 func TestMiddlewareCacheData(*testing.T) {
 	app := eudore.NewApp()
 	app.AddMiddleware("global", middleware.NewLoggerFunc(app, "route"))
-	app.AddMiddleware(middleware.NewCacheFunc(time.Second/100, app.Context, func(ctx eudore.Context) string {
+	app.AddMiddleware(middleware.NewCacheFunc(time.Second/200, app.Context, func(ctx eudore.Context) string {
 		// 自定义缓存key函数，默认实现方法
 		if ctx.Method() != eudore.MethodGet || ctx.GetHeader(eudore.HeaderUpgrade) != "" {
 			return ""
@@ -140,16 +140,16 @@ func TestMiddlewareCacheData(*testing.T) {
 		ctx.Debug(ctx.Response().Status(), ctx.Response().Size())
 	})
 	app.AnyFunc("/*", func(ctx eudore.Context) {
-		time.Sleep(time.Second / 200)
+		time.Sleep(time.Second / 400)
 		ctx.WriteString("hello eudore")
 	})
 
 	app.NewRequest(nil, "GET", "/sf")
 	wg := sync.WaitGroup{}
-	wg.Add(5)
-	for n := 0; n < 5; n++ {
+	wg.Add(6)
+	for n := 0; n < 6; n++ {
 		go func() {
-			for i := 0; i < 5; i++ {
+			for i := 0; i < 4; i++ {
 				var o any
 				app.NewRequest(nil, "GET", "/?c="+fmt.Sprint(i), func(resp *http.Response) error {
 					if resp != nil {
