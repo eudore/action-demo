@@ -1,5 +1,6 @@
 # Eudore
 
+[![Build Status](https://github.com/eudore/eudore/actions/workflows/action.yml/badge.svg)](https://github.com/eudore/eudore/actions/workflows/action.yml)
 [![godoc](https://godoc.org/github.com/eudore/eudore?status.svg)](https://godoc.org/github.com/eudore/eudore)
 [![go report card](https://goreportcard.com/badge/github.com/eudore/eudore)](https://goreportcard.com/report/github.com/eudore/eudore)
 [![codecov](https://codecov.io/gh/eudore/eudore/branch/master/graph/badge.svg)](https://codecov.io/gh/eudore/eudore)
@@ -31,4 +32,3 @@ go get -v -u github.com/eudore/eudore
 - [example演示 100+](_example#example)
 - [wiki文档](https://github.com/eudore/eudore/wiki)
 - [更新说明](CHANGELOG.md)
-- [实践](https://github.com/eudore/website)
