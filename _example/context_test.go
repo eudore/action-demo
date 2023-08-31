@@ -31,11 +31,21 @@ func TestContext(*testing.T) {
 		ctx.Infof("context: %s", ctx.GetContext())
 	})
 	eudore.NewContextBaseFunc(app)()
+	newContxt()
 
 	app.NewRequest(nil, "GET", "/context")
 
+
 	app.CancelFunc()
 	app.Run()
+}
+
+func newContxt() {
+	defer func() {
+		recover()
+	}()
+	eudore.NewContextBasePool(context.Background())
+
 }
 
 func TestContextRequest(*testing.T) {

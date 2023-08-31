@@ -51,9 +51,6 @@ func TestHandlerDataBind(*testing.T) {
 	app.NewRequest(nil, "PUT", "/data/form", form)
 	app.NewRequest(nil, "PUT", "/data/protobuf", http.Header{eudore.HeaderContentType: {eudore.MimeApplicationProtobuf}})
 
-	app.Values = nil
-	eudore.NewContextBasePool(app)
-
 	app.CancelFunc()
 	app.Run()
 }
