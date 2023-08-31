@@ -1,3 +1,7 @@
+on:
+  push:
+    paths:
+      - '.gitignore'
 run:
   timeout: 2m
   skip-dirs:
