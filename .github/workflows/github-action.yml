@@ -56,8 +56,6 @@ jobs:
           path: |
             ${{ matrix.gopath }}
             ${{ matrix.gocache }}
-      - name: Run Debug
-        run: rm -f _example/logger_test.go
       - name: Run Go Get 
         run: for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep -E "github.com|golang.org|monkey" | grep -v eudore); do go get -v $pkg; done
       - name: Run Tests
