@@ -344,9 +344,9 @@ func (h *loggerWriterRotate) rotateFile() error {
 	for {
 		name := h.getRotateName()
 		err := os.MkdirAll(filepath.Dir(name), 0o755)
-		fmt.Println(name, err)
+		fmt.Println(name,,filepath.Dir(name), err)
 		fmt.Printf("%# v\n", h)
-		file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+		file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
 		if err != nil {
 			return err
 		}
