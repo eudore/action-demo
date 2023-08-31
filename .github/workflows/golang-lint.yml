@@ -1,4 +1,7 @@
-on: {}
+on:
+  push:
+    paths:
+      - '.gitignore'
 jobs: {}
 run:
   timeout: 2m
