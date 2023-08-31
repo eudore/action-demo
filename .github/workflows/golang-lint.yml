@@ -1,5 +1,5 @@
-on: []
-jobs: []
+on: {}
+jobs: {}
 run:
   timeout: 2m
   skip-dirs:
