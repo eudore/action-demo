@@ -95,8 +95,7 @@ func TestHandlerRoute(t *testing.T) {
 	))
 	app.NewRequest(nil, "GET", "/meta/")
 
-	app.Listen(":8088")
-	// app.CancelFunc()
+	app.CancelFunc()
 	app.Run()
 }
 
