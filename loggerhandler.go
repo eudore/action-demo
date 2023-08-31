@@ -268,7 +268,7 @@ type loggerWriterFile struct {
 
 // NewLoggerWriterFile 函数创建一个文件输出的日志写入流。
 func NewLoggerWriterFile(name string) (LoggerHandler, error) {
-	err := os.MkdirAll(filepath.Dir(name), 0o644)
+	err := os.MkdirAll(filepath.Dir(name), 0o755)
 	if err != nil {
 		return nil, err
 	}
@@ -343,10 +343,8 @@ func (h *loggerWriterRotate) HandlerEntry(entry *LoggerEntry) {
 func (h *loggerWriterRotate) rotateFile() error {
 	for {
 		name := h.getRotateName()
-		err := os.MkdirAll(filepath.Dir(name), 0o755)
-		fmt.Println(name,filepath.Dir(name), err)
-		fmt.Printf("%# v\n", h)
-		file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
+		_ = os.MkdirAll(filepath.Dir(name), 0o755)
+		file, err := os.OpenFile(name, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 		if err != nil {
 			return err
 		}
@@ -434,7 +432,7 @@ func getNextTime(name string) time.Time {
 }
 
 func hookFileLink(link string) func(string, string) {
-	os.MkdirAll(filepath.Dir(link), 0o644)
+	os.MkdirAll(filepath.Dir(link), 0o755)
 	return func(name, _ string) {
 		if !filepath.IsAbs(name) {
 			pwd, _ := os.Getwd()

@@ -317,7 +317,7 @@ func TestNewLoggerWriterRotate(t *testing.T) {
 	{
 		// 占用一个索引文件 rotate跳过
 		os.Mkdir("logger", 0o755)
-		file, err := os.OpenFile("logger/app-2.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0x644)
+		file, err := os.OpenFile("logger/app-2.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 		if err == nil {
 			str := []byte("eudore logger Writer test.")
 			for i := 0; i < 1024; i++ {
