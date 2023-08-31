@@ -47,10 +47,10 @@ func (fsHTTPFile) Close() error {
 }
 
 func TestHandlerRoute(t *testing.T) {
-	os.Mkdir("static/", 0o644)
+	os.Mkdir("static/", 0o755)
 	defer os.RemoveAll("static/")
 	os.WriteFile("static/403.js", []byte("1234567890abcdef"), 0o000)
-	for i := 0; i < 8; i++ {
+	for i := 0; i < 10000; i++ {
 		os.WriteFile("static/index.js", []byte("1234567890abcdef"), 0o644)
 	}
 
