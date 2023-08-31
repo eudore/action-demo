@@ -495,7 +495,20 @@ func TestMiddlewareLookRender(*testing.T) {
 
 func TestMiddlewarePprof(*testing.T) {
 	app := eudore.NewApp()
+	app.AddMiddleware(
+		middleware.NewHeaderFilteFunc(nil, nil),
+		middleware.NewRecoverFunc(),
+		middleware.NewLoggerFunc(app),
+		middleware.NewCompressMixinsFunc(nil),
+	)
 	app.AnyFunc("/eudore/debug/pprof/*", middleware.HandlerPprof)
+	app.AnyFunc("/wait", func(ctx eudore.Context) {
+		time.Sleep(time.Second)
+	})
+
+	for i := 0; i < 4; i++ {
+		go app.NewRequest(nil, "GET", "/wait")
+	}
 
 	app.NewRequest(nil, "GET", "/eudore/debug/pprof/expvar", http.Header{eudore.HeaderAccept: {eudore.MimeApplicationJSON}})
 	app.NewRequest(nil, "GET", "/eudore/debug/pprof/?format=json")
