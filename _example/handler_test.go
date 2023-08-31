@@ -77,7 +77,6 @@ func TestHandlerRoute(t *testing.T) {
 	app.NewRequest(nil, "GET", "/meta/router")
 	app.NewRequest(nil, "GET", "/static/dir/app_test.go")
 	app.NewRequest(nil, "GET", "/static/embed/")
-	app.NewRequest(nil, "GET", "/static/embed/app.go")
 	app.NewRequest(nil, "GET", "/static/embed/app_test.go")
 	app.NewRequest(nil, "GET", "/static/index/")
 	app.NewRequest(nil, "GET", "/static/index/403.js")
