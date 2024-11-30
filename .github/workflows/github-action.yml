@@ -34,6 +34,7 @@ jobs:
     env:
       GO111MODULE: off
       GOPATH: ${{ matrix.gopath }}:${{ github.workspace }}
+      GOARCH: amd64
       CGO_ENABLED: 1
       WORKDIR: src/github.com/eudore/eudore/
       PACKAGES: github.com/eudore/eudore,github.com/eudore/eudore/middleware
