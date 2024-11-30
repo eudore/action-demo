@@ -57,6 +57,8 @@ jobs:
             ${{ matrix.gocache }}
       - name: Run Go Get 
         run: for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep -E "github.com|golang.org|monkey" | grep -v eudore); do go get -v $pkg; done
+      - name: Run Bench
+        run: go test -run=^$ -bench=. -cpu=1 _example/*_test.go
       - name: Run Tests
         run: go test -v -timeout=1m -race -cover -coverprofile=coverage.out -coverpkg='${{ env.PACKAGES }}' _example/*_test.go
       - name: Run Notice
