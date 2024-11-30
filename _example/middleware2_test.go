@@ -18,7 +18,6 @@ import (
 	. "github.com/eudore/eudore/middleware"
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
-	"github.com/google/uuid"
 )
 
 type metadatable func() any
@@ -81,7 +80,7 @@ func TestMiddlewareLoggerAccess(*testing.T) {
 		NewLoggerLevelFunc(func(Context) int { return 4 }),
 	)
 	app.AddMiddleware("global", NewRequestIDFunc(func(Context) string {
-		return uuid.New().String()
+		return GetStringRandom(16)
 	}))
 	app.AnyFunc("/long", func(ctx Context) {
 		time.Sleep(time.Millisecond * 10)

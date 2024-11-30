@@ -58,6 +58,13 @@ func TestLoggerStd(t *testing.T) {
 	)
 	NewLoggerWithContext(ctx)
 	NewLoggerWithContext(context.Background())
+
+	NewLogger(&LoggerConfig{
+		Handlers: []LoggerHandler{
+			NewLoggerWriterStdout(true),
+			NewLoggerWriterStdout(false),
+		},
+	}).Info("Stdout")
 }
 
 func TestLoggerInit1(t *testing.T) {
@@ -280,6 +287,8 @@ func TestLoggerWriterAsync(t *testing.T) {
 	defer os.Remove(logfile)
 	log := NewLogger(&LoggerConfig{
 		Handlers: []LoggerHandler{
+			NewLoggerWriterStdout(true),
+			NewLoggerWriterStdout(false),
 			NewLoggerWriterAsync([]LoggerHandler{
 				&loggerAsyncWait{},
 			}, 5, 2048, time.Millisecond*50),

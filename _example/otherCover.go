@@ -17,18 +17,27 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	level := 100.00
+	var results []string
 	for _, pkg := range strings.Split(os.Getenv("PACKAGES"), ",") {
 		v, ok := total[pkg]
 		if ok {
 			cov := percent(v[0], v[1])
-			switch {
-			case cov >= 99:
-				fmt.Printf("::notice::%s \t%.1f%%\r\n", pkg, cov)
-			case cov >= 90:
-				fmt.Printf("::warning::%s \t%.1f%%\r\n", pkg, cov)
-			default:
-				fmt.Printf("::error::%s \t%.1f%%\r\n", pkg, cov)
+			if cov < level {
+				level = cov
 			}
+			results = append(results, fmt.Sprintf("%s %.1f%%", pkg, cov))
+		}
+	}
+	if results != nil {
+		switch {
+		case level >= 99:
+			fmt.Printf("::notice::%s\r\n", strings.Join(results, ", "))
+		case level >= 90:
+			fmt.Printf("::warning::%s\r\n", strings.Join(results, ", "))
+		default:
+			fmt.Printf("::error::%s\r\n", strings.Join(results, ", "))
 		}
 	}
 }
