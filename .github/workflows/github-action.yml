@@ -70,7 +70,7 @@ jobs:
           working-directory: ${{ env.WORKDIR }}
           files: coverage.out
           flags: ${{ matrix.os }},go-${{ matrix.go }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: matrix.go == '1.20'
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
