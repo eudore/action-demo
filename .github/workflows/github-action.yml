@@ -32,7 +32,7 @@ jobs:
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}-latest
     env:
-      GO111MODULE: auto
+      GO111MODULE: on
       GOPATH: ${{ matrix.gopath }}:${{ github.workspace }}
       GOARCH: amd64
       CGO_ENABLED: 1
