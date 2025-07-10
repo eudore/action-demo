@@ -8,11 +8,11 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - uses: golangci/golangci-lint-action@v3
+      - uses: golangci/golangci-lint-action@v8
         continue-on-error: true
         with:
           args: --verbose --config .github/workflows/golang-lint.json
@@ -42,13 +42,13 @@ jobs:
       run:
         working-directory: ${{ env.WORKDIR }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           path: ${{ env.WORKDIR }}
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           key: ${{ runner.os }}-go-${{ hashFiles('src/github.com/eudore/eudore/go.mod') }}
           restore-keys: ${{ runner.os }}-go-
