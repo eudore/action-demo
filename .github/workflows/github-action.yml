@@ -49,7 +49,14 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-          cache-dependency-path: CHANGELOG.md
+          cache: false
+      - uses: actions/cache@v4
+        with:
+          key: ${{ runner.os }}-go-${{ hashFiles('src/github.com/eudore/eudore/go.mod') }}
+          restore-keys: ${{ runner.os }}-go-
+          path: |
+            ${{ matrix.gopath }}
+            ${{ matrix.gocache }}
       - name: Run Go Get
         run: mv _example/*_test.go . && go mod tidy
       - name: Run Bench
