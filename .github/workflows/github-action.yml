@@ -48,7 +48,7 @@ jobs:
           path: ${{ env.WORKDIR }}
       - name: Run GO111MODULE
         if: matrix.go < '1.22'
-        run: export GO111MODULE=on
+        run: export GO111MODULE=off
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
