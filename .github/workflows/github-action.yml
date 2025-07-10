@@ -58,7 +58,7 @@ jobs:
       - name: Run Go Get 
         run: ls _example | grep -v '_test.go' | xargs rm -f
       - name: Run Go Get 2
-        run: go mod tidy
+        run: 'cd _example && go mod tidy _example && cd ..'
       - name: Run Bench
         run: go test -run=^$ -bench=. -cpu=1 _example/*_test.go
       - name: Run Tests
