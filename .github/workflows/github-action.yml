@@ -56,7 +56,7 @@ jobs:
             ${{ matrix.gopath }}
             ${{ matrix.gocache }}
       - name: Run Go Get 
-        run: mv _example/*_test.go' .
+        run: mv _example/*_test.go .
       - name: Run Go Get 2
         run: go mod tidy
       - name: Run Bench
