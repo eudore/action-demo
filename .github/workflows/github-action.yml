@@ -56,7 +56,7 @@ jobs:
             ${{ matrix.gopath }}
             ${{ matrix.gocache }}
       - name: Run Go Get
-        run: mv _example/*_test.go . && sed -i 's/appNew.go/README.md/g' client_test.go && go mod tidy
+        run: mv _example/*_test.go . && go mod tidy
       - name: Run Bench
         run: go test -run=^$ -bench=. -cpu=1 *_test.go
       - name: Run Tests
