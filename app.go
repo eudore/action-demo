@@ -1,13 +1,9 @@
 /*
-Package eudore golang http framework, less is more.
+Package eudore golang http framework.
 
 source: https://github.com/eudore/eudore
 
 wiki: https://github.com/eudore/eudore/wiki
-
-exapmle: https://github.com/eudore/eudore/tree/master/_example
-
-godev: https://pkg.go.dev/github.com/eudore/eudore
 */
 package eudore // import "github.com/eudore/eudore"
 

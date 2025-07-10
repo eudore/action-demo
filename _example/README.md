@@ -32,7 +32,7 @@
 	- [Render template](contextTemplate.go)
 	- [File upload](contextUpload.go)
 - Handler
-	- [SSE Hub](handlerEvent.go)(Alpha)
+	- [Event Hub](handlerEvent.go)(Alpha)
 	- [Embed and Static file](handlerEmbed.go)
 	- [Handler Extender](handlerExtender.go)
 - [Middleware](middleware.go)

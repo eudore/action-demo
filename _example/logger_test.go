@@ -287,17 +287,16 @@ func TestLoggerWriterAsync(t *testing.T) {
 	defer os.Remove(logfile)
 	log := NewLogger(&LoggerConfig{
 		Handlers: []LoggerHandler{
-			NewLoggerWriterStdout(true),
-			NewLoggerWriterStdout(false),
 			NewLoggerWriterAsync([]LoggerHandler{
 				&loggerAsyncWait{},
 			}, 5, 2048, time.Millisecond*50),
 			NewLoggerWriterAsync([]LoggerHandler{
 				&loggerAsyncWait{},
 			}, 5, 2048, time.Millisecond),
+			NewLoggerWriterStdout(true),
+			NewLoggerWriterStdout(false),
 		},
 		Stdout:     true,
-		StdColor:   true,
 		TimeFormat: time.RFC3339Nano + " " + time.RFC3339Nano,
 		Path:       logfile,
 		AsyncSize:  5,

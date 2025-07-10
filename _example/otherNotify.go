@@ -117,7 +117,7 @@ func (app *App) RunNotify() {
 	app.Info("notify startCmd", app.Start)
 	app.buildAndRestart()
 
-	var timer = time.AfterFunc(1000*time.Hour, app.buildAndRestart)
+	timer := time.AfterFunc(1000*time.Hour, app.buildAndRestart)
 	defer func() {
 		timer.Stop()
 		if app.cancelBuild != nil {

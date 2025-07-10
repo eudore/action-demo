@@ -9,6 +9,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 	"time"
@@ -22,8 +24,8 @@ func TestMiddlewareBasicAuth(*testing.T) {
 	app.AddMiddleware("global", NewBasicAuthFunc(map[string]string{"eudore": "hello"}))
 	app.AnyFunc("/", NewAdminFunc())
 
-	app.GetRequest( "/", http.Header{HeaderAuthorization: {"Basic ZXVkb3JlOmhlbGxv"}}, NewClientCheckStatus(200))
-	app.GetRequest( "/", http.Header{HeaderAuthorization: {"eudore"}}, NewClientCheckStatus(401))
+	app.GetRequest("/", http.Header{HeaderAuthorization: {"Basic ZXVkb3JlOmhlbGxv"}}, NewClientCheckStatus(200))
+	app.GetRequest("/", http.Header{HeaderAuthorization: {"eudore"}}, NewClientCheckStatus(401))
 
 	app.CancelFunc()
 	app.Run()
@@ -50,16 +52,16 @@ func TestMiddlewareBodyLimit(*testing.T) {
 		}
 	})
 
-	app.GetRequest( "/", NewClientCheckStatus(200))
-	app.GetRequest( "/", strings.NewReader("123456"), NewClientCheckStatus(200))
-	app.GetRequest( "/", strings.NewReader("1234567890abcdefghijklmnopqrstuvwxyz"), NewClientCheckStatus(413))
+	app.GetRequest("/", NewClientCheckStatus(200))
+	app.GetRequest("/", strings.NewReader("123456"), NewClientCheckStatus(200))
+	app.GetRequest("/", strings.NewReader("1234567890abcdefghijklmnopqrstuvwxyz"), NewClientCheckStatus(413))
 	// limit chunck
 	data := url.Values{
 		"name":  {"eudore"},
 		"value": {"1234567890abcdefghijklmnopqrstuvwxyz"},
 	}
-	app.GetRequest( "/", NewClientBodyForm(data), NewClientCheckStatus(413))
-	app.GetRequest( "/form", NewClientBodyForm(data), NewClientCheckStatus(413))
+	app.GetRequest("/", NewClientBodyForm(data), NewClientCheckStatus(413))
+	app.GetRequest("/form", NewClientBodyForm(data), NewClientCheckStatus(413))
 
 	app.CancelFunc()
 	app.Run()
@@ -119,11 +121,11 @@ func TestMiddlewareHeader(*testing.T) {
 		"::1",
 	}, nil))
 
-	app.GetRequest( "/")
-	app.GetRequest( "/")
-	app.GetRequest( "/?addr=192.0.0.1:50424")
-	app.GetRequest( "/?addr=127.0.0.1:50424")
-	app.GetRequest( "/?addr=[::1]:50424")
+	app.GetRequest("/")
+	app.GetRequest("/")
+	app.GetRequest("/?addr=192.0.0.1:50424")
+	app.GetRequest("/?addr=127.0.0.1:50424")
+	app.GetRequest("/?addr=[::1]:50424")
 
 	app.CancelFunc()
 	app.Run()
@@ -185,6 +187,27 @@ func TestMiddlewareRoutes(*testing.T) {
 	app.Run()
 }
 
+func TestMiddlewareSkipHandler(*testing.T) {
+	NewSkipHandlerFunc("", nil)
+	NewSkipHandlerFunc("", map[string]struct{}{})
+	app := NewApp()
+	app.GetFunc("/path/*", NewSkipHandlerFunc("path", map[string]struct{}{"/path/200": {}}), HandlerRouter403)
+	app.GetFunc("/param", NewSkipHandlerFunc("param:route", map[string]struct{}{"/param": {}}), HandlerRouter403)
+	app.GetFunc("/cookie", NewSkipHandlerFunc("cookie:name", map[string]struct{}{"eudore": {}}), HandlerRouter403)
+	app.GetFunc("/request", NewSkipHandlerFunc("request:name", map[string]struct{}{"eudore": {}}), HandlerRouter403)
+
+	app.GetRequest("/path/200", NewClientCheckStatus(200))
+	app.GetRequest("/path/201", NewClientCheckStatus(403))
+	app.GetRequest("/param", NewClientCheckStatus(200))
+	app.GetRequest("/cookie", &Cookie{"name", "eudore"}, NewClientCheckStatus(200))
+	app.GetRequest("/cookie", NewClientCheckStatus(403))
+	app.GetRequest("/request", http.Header{"Name": []string{"eudore"}}, NewClientCheckStatus(200))
+	app.GetRequest("/request", NewClientCheckStatus(403))
+
+	app.CancelFunc()
+	app.Run()
+}
+
 func TestMiddlewareOption(*testing.T) {
 	op := NewOptionKeyFunc(func(ctx Context) string { return "" })
 	NewCSRFFunc("", op)
@@ -229,11 +252,14 @@ func TestMiddlewareName(t *testing.T) {
 		NewRouterFunc(app),
 		NewRoutesFunc(map[string]any{}),
 		NewServerTimingFunc(),
+		NewSkipHandlerFunc("path", map[string]struct{}{"/": {}}),
 		NewTimeoutFunc(app.ContextPool, time.Second),
 		NewTimeoutSkipFunc(app.ContextPool, time.Second, nil),
 	}
 	for _, h := range hs {
-		if !strings.Contains(h.String(), "eudore/middleware.New") {
+		rh := reflect.ValueOf(h)
+		name := runtime.FuncForPC(rh.Pointer()).Name()
+		if !strings.Contains(name, "/eudore/middleware.New") {
 			panic(h.String())
 		}
 	}

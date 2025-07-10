@@ -58,8 +58,8 @@ func init() {
 			node4.Insert(matchs4[i] + "/24")
 		}
 		if i < 20 {
-			nets6.Insert(matchs6[i] + "/96")
-			node6.Insert(matchs6[i] + "/96")
+			nets6.Insert(matchs6[i] + "/24")
+			node6.Insert(matchs6[i] + "/24")
 		}
 	}
 

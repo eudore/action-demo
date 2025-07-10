@@ -1,34 +1,30 @@
 # Eudore
 
-[![Build Status](https://github.com/eudore/action-demo/actions/workflows/github-action.yml/badge.svg)](https://github.com/eudore/action-demo/actions/workflows/github-action.yml)
 [![godoc](https://godoc.org/github.com/eudore/eudore?status.svg)](https://godoc.org/github.com/eudore/eudore)
-[![go report card](https://goreportcard.com/badge/github.com/eudore/eudore)](https://goreportcard.com/report/github.com/eudore/eudore)
+[![Build Status](https://github.com/eudore/eudore/actions/workflows/github-action.yml/badge.svg)](https://github.com/eudore/eudore/actions/workflows/github-action.yml)
 [![codecov](https://codecov.io/gh/eudore/eudore/branch/master/graph/badge.svg)](https://codecov.io/gh/eudore/eudore)
 
-eudore是一个golang轻量级web框架核心，可以轻松扩展成一个技术栈专用框架，具有完整框架设计体系。
+eudore is the core of a composite web framework, which can replace any content through composition;
+For simple apps, it can be used directly, and for complex applications, the framework can be customized by composition.
 
-反馈和交流请加群组：[QQ群373278915](//shang.qq.com/wpa/qunwpa?idkey=869ec8f1272b4757771c3e406349f1128cfa3bd9ca668937dda8dfb223261a60)。
+The framework uses a three-layer structure of App, Controller, and Context.
+- eudore.App combines Logger, Config, Router, Client, Server, and Values.
+- Custom App combines eudore.App, database/sql, Prometheus, and other custom components.
+- Controller uses methods to create automatic routing and
+ copies required dependent components from App.
+- Context uses HandlerExtender to create custom processing functions and
+ uses HandlerDataFunc to implement data binding, verification, filtering, and rendering processes.
 
-## Features
+Each built-in component does not use any third-party dependencies,
+and its performance is similar to that of similar libraries,
+which can be achieved by combining and replacing part of the component content.
 
-- 易扩展：主要设计目标、核心全部解耦，接口即为逻辑。
-- 简单：对象语义明确，框架代码量少[复杂度低](https://goreportcard.com/report/github.com/eudore/eudore#gocyclo)，无依赖库。
-- 易用：允许Appcation和Context自由添加功能方法。
-- 高性能：各部分实现与同类库相比性能相似。
-- 两项创新：[新Radix路由实现](https://github.com/eudore/eudore/wiki/4.5.1-eudore-router-radix)和[处理函数扩展机制](https://github.com/eudore/eudore/wiki/4.7-eudore-handler)
+This project is usually updated at the end of the month, and no API compatibility is guaranteed,
+but most of the content has been fixed after years of maintenance.
+Developed using go1.20 and GOPATH mode.
 
-## 安装
-
-eudore基于`go version go1.10.1 linux/amd64`下开发，运行依赖go1.9+版本。
-
-```bash
-go get -v -u github.com/eudore/eudore
-```
-
-## 文档
-
-- [源码](https://github.com/eudore/eudore)
+See the documentation for more details:
+- [wiki](https://github.com/eudore/eudore/wiki)
 - [godoc](https://godoc.org/github.com/eudore/eudore)
-- [example演示 100+](_example#example)
-- [wiki文档](https://github.com/eudore/eudore/wiki)
-- [更新说明](CHANGELOG.md)
+- [example](_example#example)
+- [change log](CHANGELOG.md)
