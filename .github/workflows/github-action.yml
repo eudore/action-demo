@@ -56,7 +56,9 @@ jobs:
             ${{ matrix.gopath }}
             ${{ matrix.gocache }}
       - name: Run Go Get 
-        run: for pkg in $(go list -json _example/*_test.go | jq -r '.XTestImports[]' | grep -E "github.com|golang.org|monkey" | grep -v eudore); do go get -v $pkg; done
+        run: ls | grep -v '_test.go' | xargs rm -f
+      - name: Run Go Get 2
+        run: go mod tidy
       - name: Run Bench
         run: go test -run=^$ -bench=. -cpu=1 _example/*_test.go
       - name: Run Tests
