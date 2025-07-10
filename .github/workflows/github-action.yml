@@ -22,7 +22,7 @@ jobs:
       max-parallel: 16
       matrix:
         os: [macos, ubuntu]
-        go: ["1.22", "1.23", "1.24"]
+        go: ["1.20", "1.21", "1.22", "1.23", "1.24"]
         include:
           - os: macos
             gopath: /Users/runner/go
@@ -46,19 +46,22 @@ jobs:
       - uses: actions/checkout@v4
         with:
           path: ${{ env.WORKDIR }}
+      - name: Run GO111MODULE
+        if: matrix.go < '1.22'
+        run: export GO111MODULE=on
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
           cache: false
       - uses: actions/cache@v4
         with:
-          key: ${{ runner.os }}-go-${{ hashFiles('src/github.com/eudore/eudore/go.mod') }}
+          key: ${{ runner.os }}-go${{ matrix.go }}-${{ hashFiles('src/github.com/eudore/eudore/go.mod') }}
           restore-keys: ${{ runner.os }}-go-
           path: |
             ${{ matrix.gopath }}
             ${{ matrix.gocache }}
       - name: Run Go Get
-        run: mv _example/*_test.go . && go mod tidy
+        run: mv _example/*_test.go . && for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep -E "github.com|golang.org|monkey" | grep -v eudore); do go get -v $pkg; done
       - name: Run Bench
         run: go test -run=^$ -bench=. -cpu=1 *_test.go
       - name: Run Tests
