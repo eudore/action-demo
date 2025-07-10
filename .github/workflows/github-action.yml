@@ -66,10 +66,10 @@ jobs:
       - name: Run Notice
         run: go run _example/otherCover.go
       - name: Run Coverage
-        if: matrix.go == '1.20'
+        if: matrix.go == '1.22'
         run: go tool cover -html coverage.out -o coverage.html
       - uses: actions/upload-artifact@v4
-        if: matrix.go == '1.20'
+        if: matrix.go == '1.22'
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: ${{ env.WORKDIR }}/coverage.html
