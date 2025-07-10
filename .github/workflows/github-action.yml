@@ -49,7 +49,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-          cache-dependency-path: go.mod
+          cache-dependency-path: CHANGELOG.md
       - name: Run Go Get
         run: mv _example/*_test.go . && go mod tidy
       - name: Run Bench
