@@ -37,7 +37,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     env:
       GO111MODULE: ${{ matrix.go < '1.22' && 'off' || 'on' }}
-      GOPATH: ${{ matrix.gopath }}${{ matrix.os == 'windows' && ';' || ':' }}${{ github.workspace }}
+      GOPATH: ${{ matrix.gopath }}${{ matrix.os == 'windows' && '; ' || ':' }}${{ github.workspace }}
       GOARCH: amd64
       CGO_ENABLED: 1
       WORKDIR: src/github.com/eudore/eudore/
@@ -79,6 +79,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: ${{ env.WORKDIR }}/coverage.html
+
 
 
 
