@@ -36,27 +36,19 @@ jobs:
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}-latest
     env:
-      GO111MODULE: ${{ matrix.go < '1.22' && 'off' || 'on' }}
-      GOPATH: ${{ matrix.gopath }}${{ matrix.os == 'windows' && '; ' || ':' }}${{ github.workspace }}
-      GOARCH: amd64
+      GO111MODULE: on
+      GOPATH: ${{ matrix.gopath }}
       CGO_ENABLED: 1
-      WORKDIR: src/github.com/eudore/eudore/
       PACKAGES: github.com/eudore/eudore,github.com/eudore/eudore/middleware
-    defaults:
-      run:
-        working-directory: ${{ env.WORKDIR }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          path: ${{ env.WORKDIR }}
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go }}
           cache: false
-          
       - name: Run Env
         run: go env
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           key: ${{ runner.os }}-go${{ matrix.go }}-${{ hashFiles('src/github.com/eudore/eudore/go.mod') }}
           restore-keys: ${{ runner.os }}-go-
@@ -64,7 +56,7 @@ jobs:
             ${{ matrix.gopath }}
             ${{ matrix.gocache }}
       - name: Run Go Get
-        run: mv _example/*_test.go . && for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep -E "github.com|golang.org|monkey" | grep -v eudore); do go get -v $pkg; done
+        run: mv _example/*_test.go . && for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep -E "golang.org|github.com" | grep -v eudore); do go get -v $pkg; done
       - name: Run Bench
         run: go test -run=^$ -bench=. -cpu=1 *_test.go
       - name: Run Tests
@@ -74,12 +66,17 @@ jobs:
       - name: Run Coverage
         if: matrix.go == '1.20'
         run: go tool cover -html coverage.out -o coverage.html
-      - uses: actions/upload-artifact@v4
+      - uses: codecov/codecov-action@v5
+        if: matrix.go == '1.20'
+        with:
+          files: coverage.out
+          flags: ${{ matrix.os }},go-${{ matrix.go }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+      - uses: actions/upload-artifact@v6
         if: matrix.go == '1.20'
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
-          path: ${{ env.WORKDIR }}/coverage.html
-
+          path: coverage.html
 
 
 
