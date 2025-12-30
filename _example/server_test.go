@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -159,7 +160,7 @@ func TestServerListen(t *testing.T) {
 		if err == nil && c.Addr != ":8089" {
 			ln.Close()
 		}
-		if !strings.Contains(errs[i], err.Error()) {
+		if !strings.Contains(errs[i], fmt.Sprint(err)) {
 			t.Error(i, err)
 		}
 	}
