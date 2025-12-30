@@ -21,23 +21,12 @@ jobs:
     strategy:
       max-parallel: 16
       matrix:
-        os: [macos, ubuntu,windows]
+        os: [macos, ubuntu, windows]
         go: ["1.24"]
-        include:
-          - os: macos
-            gopath: /Users/runner/go
-            gocache: /Users/runner/Library/Caches/go-build
-          - os: ubuntu
-            gopath: /home/runner/go
-            gocache: /home/runner/.cache/go-build
-          - os: windows
-            gopath: C:\Users\runneradmin\go
-            gocache: C:\Users\runneradmin\AppData\Local\go-build
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}-latest
     env:
       GO111MODULE: on
-      GOPATH: ${{ matrix.gopath }}
       CGO_ENABLED: 1
       PACKAGES: github.com/eudore/eudore,github.com/eudore/eudore/middleware
     steps:
@@ -46,13 +35,6 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           cache-dependency-path: go.mod
-      - uses: actions/cache@v5
-        with:
-          key: ${{ runner.os }}-go${{ matrix.go }}-${{ hashFiles('go.mod') }}
-          restore-keys: ${{ runner.os }}-go-
-          path: |
-            ${{ matrix.gopath }}
-            ${{ matrix.gocache }}
       - name: Run move
         run: mv _example/*_test.go .
       - name: Run Go Get
@@ -77,28 +59,3 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
