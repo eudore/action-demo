@@ -36,7 +36,7 @@ jobs:
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}-latest
     env:
-      GO111MODULE: on
+      GO111MODULE: off
       GOPATH: ${{ matrix.gopath }}
       CGO_ENABLED: 1
       PACKAGES: github.com/eudore/eudore,github.com/eudore/eudore/middleware
@@ -56,7 +56,7 @@ jobs:
       - name: Run move
         run: mv _example/*_test.go .
       - name: Run Go Get
-        run: go mod tidy
+        run: for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep -E "golang.org|github.com" | grep -v eudore); do go get -v $pkg; done
       - name: Run Bench
         run: go test -run=^$ -bench=. -cpu=1 *_test.go
       - name: Run Tests
@@ -77,6 +77,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
