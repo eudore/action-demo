@@ -344,7 +344,7 @@ func TestHandlerList(t *testing.T) {
 		"github.com/eudore/eudore.NewHandlerFileIOFS(fs.FS)",
 		"github.com/eudore/eudore.NewHandlerFileSystem(http.FileSystem)",
 		"github.com/eudore/eudore.NewHandlerAnyContextTypeAnyError(interface {})",
-		"/ command-line-arguments_test.TestHandlerList.func1(interface {})",
+		"/ github.com/eudore/eudore_test.TestHandlerList.func1(interface {})",
 	}
 	app := NewApp()
 	// app.SetValue(ContextKeyLogger, DefaultLoggerNull)
