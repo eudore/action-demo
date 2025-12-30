@@ -56,7 +56,7 @@ jobs:
       - name: Run move
         run: mv _example/*_test.go .
       - name: Run Go Get
-        run: for pkg in $(go list -json *_test.go | jq -r '.XTestImports[]' | grep -E "golang.org|github.com" | grep -v eudore); do go get -v $pkg; done
+        run: go mod tidy -go=${{ matrix.go }}
       - name: Run Bench
         run: go test -run=^$ -bench=. -cpu=1 *_test.go
       - name: Run Tests
@@ -77,6 +77,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
