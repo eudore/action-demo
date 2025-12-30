@@ -145,13 +145,13 @@ func TestServerListen(t *testing.T) {
 		},
 	}
 	errs := []string{
-		"<nil> listen tcp :80: bind: permission denied",
+		"<nil> listen tcp :80: bind: permission denied|listen tcp :80: bind: An attempt was made to access a socket in a way forbidden by its access permissions.",
 		"<nil> listen tcp :443: bind: permission denied",
 		"<nil>",
-		"listen tcp :8089: bind: address already in use",
+		"listen tcp :8089: bind: address already in use|listen tcp :8089: bind: Only one usage of each socket address",
 		"<nil>",
-		"open : no such file or directory",
-		"open not found.key: no such file or directory",
+		"open : no such file or directory|The system cannot find the file specified.",
+		"open not found.key: no such file or directory|open not found.key: The system cannot find the file specified.",
 	}
 	lns := []any{}
 	for i, c := range confs {
