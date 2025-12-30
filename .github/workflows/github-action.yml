@@ -21,7 +21,7 @@ jobs:
     strategy:
       max-parallel: 16
       matrix:
-        os: [macos, ubuntu]
+        os: [macos, ubuntu,windows]
         go: ["1.24"]
         include:
           - os: macos
@@ -30,6 +30,9 @@ jobs:
           - os: ubuntu
             gopath: /home/runner/go
             gocache: /home/runner/.cache/go-build
+          - os: windows
+            gopath: C:\Users\runneradmin\go
+            gocache: C:\Users\runneradmin\AppData\Local\go-build
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}-latest
     env:
@@ -74,6 +77,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
