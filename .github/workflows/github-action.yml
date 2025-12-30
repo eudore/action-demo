@@ -53,8 +53,10 @@ jobs:
           path: |
             ${{ matrix.gopath }}
             ${{ matrix.gocache }}
+      - name: Run move
+        run: mv _example/*_test.go .
       - name: Run Go Get
-        run: mv _example/*_test.go . && go mod tidy
+        run: go mod tidy
       - name: Run Bench
         run: go test -run=^$ -bench=. -cpu=1 *_test.go
       - name: Run Tests
@@ -75,6 +77,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
