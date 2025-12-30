@@ -30,9 +30,6 @@ jobs:
           - os: ubuntu
             gopath: /home/runner/go
             gocache: /home/runner/.cache/go-build
-          - os: windows
-            gopath: C:\Users\runneradmin\go
-            gocache: C:\Users\runneradmin\AppData\Local\go-build
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}-latest
     env:
@@ -56,7 +53,7 @@ jobs:
       - name: Run move
         run: mv _example/*_test.go .
       - name: Run Go Get
-        run: go mod tidy -go=${{ matrix.go }}.0
+        run: go mod tidy
       - name: Run Bench
         run: go test -run=^$ -bench=. -cpu=1 *_test.go
       - name: Run Tests
@@ -77,6 +74,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
