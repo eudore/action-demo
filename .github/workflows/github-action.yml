@@ -45,7 +45,7 @@ jobs:
       - uses: actions/setup-go@v6
         with:
           go-version: ${{ matrix.go }}
-          cache: true
+          cache-dependency-path: go.mod
       - uses: actions/cache@v5
         with:
           key: ${{ runner.os }}-go${{ matrix.go }}-${{ hashFiles('go.mod') }}
@@ -77,6 +77,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
