@@ -37,6 +37,7 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     env:
       GO111MODULE: on
+      GOTOOLCHAIN: auto
       GOPATH: ${{ matrix.gopath }}
       CGO_ENABLED: 1
       PACKAGES: github.com/eudore/eudore,github.com/eudore/eudore/middleware
@@ -46,8 +47,6 @@ jobs:
         with:
           go-version: ${{ matrix.go }}
           cache: false
-      - name: Run Env
-        run: go env
       - uses: actions/cache@v5
         with:
           key: ${{ runner.os }}-go${{ matrix.go }}-${{ hashFiles('src/github.com/eudore/eudore/go.mod') }}
@@ -77,6 +76,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
