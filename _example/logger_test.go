@@ -397,7 +397,7 @@ func TestLoggerHookFilter(t *testing.T) {
 		`{"time":"none","level":"INFO","mail":"pos****@eudore.cn","password":"***"}`,
 		`{"time":"none","level":"INFO","ti":0,"tu":0,"tf":0,"tb":false,"ta":"0001-01-01T00:00:00Z"}`,
 		`{"time":"none","level":"INFO","path":null}`,
-		`{"time":"none","level":"DEBUG","strs":["",""],"t":"2024-12-25T00:00:00+08:00"}`,
+		`{"time":"none","level":"DEBUG","strs":["",""],"t":"2024-12-24T16:00:00Z"}`,
 		`{"time":"none","level":"DEBUG","message":"err: funcCreator create kind invalid func 1 err: invalid func kind 0"}`,
 	}
 	log := NewLogger(&LoggerConfig{
@@ -420,7 +420,7 @@ func TestLoggerHookFilter(t *testing.T) {
 	log.WithField("mail", "postmaster@eudore.cn").WithField("password", "123456").Info()
 	log.WithFields([]string{"ti", "tu", "tf", "tb", "ta"}, []any{1, uint(1), 1.0, true, time.Now()}).Info()
 	log.WithFields([]string{"path"}, []any{nil}).Info()
-	log.WithFields([]string{"strs", "t"}, []any{[]string{"", "2"}, time.Unix(1734192000, 0)}).Debug()
+	log.WithFields([]string{"strs", "t"}, []any{[]string{"", "2"}, time.Unix(1734192000, 0).UTC()}).Debug()
 
 	meta, ok := fc.(interface{ Metadata() any }).Metadata().(MetadataFuncCreator)
 	if ok {
