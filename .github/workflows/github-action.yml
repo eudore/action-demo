@@ -48,7 +48,7 @@ jobs:
           cache: false
       - uses: actions/cache@v5
         with:
-          key: ${{ runner.os }}-go${{ matrix.go }}-${{ hashFiles('src/github.com/eudore/eudore/go.mod') }}
+          key: ${{ runner.os }}-go${{ matrix.go }}-${{ hashFiles('go.mod') }}
           restore-keys: ${{ runner.os }}-go-
           path: |
             ${{ matrix.gopath }}
@@ -58,7 +58,7 @@ jobs:
       - name: Run Go Get
         run: go mod tidy
       - name: Run Bench
-        run: go test -run=^$ -bench=. -cpu=1 .
+        run: go test -run='^$' -bench=. -cpu=1 .
       - name: Run Tests
         run: go test -v -timeout=1m -race -cover -coverprofile='coverage.out' -coverpkg='${{ env.PACKAGES }}' .
       - name: Run Notice
@@ -77,6 +77,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
