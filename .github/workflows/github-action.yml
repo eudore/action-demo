@@ -58,7 +58,7 @@ jobs:
       - name: Run Go Get
         run: go mod tidy
       - name: Run Bench
-        run: go test -run=^$ -bench=. -cpu=1 *_test.go
+        run: go test -run=^$ -bench=. -cpu=1 .
       - name: Run Tests
         run: go test -v -timeout=1m -race -cover -coverprofile='coverage.out' -coverpkg='${{ env.PACKAGES }}' .
       - name: Run Notice

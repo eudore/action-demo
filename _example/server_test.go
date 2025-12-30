@@ -148,9 +148,9 @@ func TestServerListen(t *testing.T) {
 		"<nil> listen tcp :80: bind: permission denied|listen tcp :80: bind: An attempt was made to access a socket in a way forbidden by its access permissions.",
 		"<nil> listen tcp :443: bind: permission denied",
 		"<nil>",
-		"listen tcp :8089: bind: address already in use|listen tcp :8089: bind: Only one usage of each socket address",
+		"listen tcp :8089: bind: address already in use|listen tcp :8089: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.",
 		"<nil>",
-		"open : no such file or directory|The system cannot find the file specified.",
+		"open : no such file or directory|open : The system cannot find the file specified.",
 		"open not found.key: no such file or directory|open not found.key: The system cannot find the file specified.",
 	}
 	lns := []any{}
@@ -160,7 +160,7 @@ func TestServerListen(t *testing.T) {
 		if err == nil && c.Addr != ":8089" {
 			ln.Close()
 		}
-		if !strings.Contains(errs[i], fmt.Sprint(err)) {
+		if !strings.Contains(errs[i], err.Error()) {
 			t.Error(i, err)
 		}
 	}
