@@ -19,6 +19,10 @@ import (
 //go:embed *.go
 var root embed.FS
 
+type fsSub struct {
+	fs.FS
+}
+
 type fsPermission struct{}
 
 func (fsPermission) Open(name string) (http.File, error) {
@@ -69,27 +73,31 @@ func TestHandlerRoute(t *testing.T) {
 	app.GetFunc("/403", HandlerRouter403)
 	app.GetFunc("/index", HandlerEmpty)
 	app.GetFunc("/trace", HandlerMethodTrace)
-	app.GetFunc("/static/dir/*", NewHandlerFileSystems(".", "."))
-	app.GetFunc("/static/index/* autoindex=true", NewHandlerFileSystems(".", "."))
-	app.GetFunc("/static/embed/*", root)
-	app.GetFunc("/static/fs1/* autoindex=true", fsPermission{})
-	app.GetFunc("/static/fs2/* autoindex=true", fsHTTPDir{})
+	app.GetFunc("/static/fs1/*", NewHandlerFileSystems(".", "."))
+	app.GetFunc("/static/fs2/* autoindex=true", NewHandlerFileSystems(".", "."))
+	app.GetFunc("/static/fs3/*", NewFileSystemPrefix(".", "static", http.Dir(".")))
+	app.GetFunc("/static/fs4/*", root)
+	app.GetFunc("/static/fs5/*", fsSub{root})
+	app.GetFunc("/static/fs6/* autoindex=true", fsPermission{})
+	app.GetFunc("/static/fs7/* autoindex=true", fsHTTPDir{})
 
 	app.NewRequest("GET", "/index")
 	app.NewRequest("POST", "/index")
 	app.NewRequest("GET", "/trace")
 	app.NewRequest("GET", "/403")
 	app.NewRequest("GET", "/404")
-	app.NewRequest("GET", "/static/dir/app_test.go")
-	app.NewRequest("GET", "/static/embed/")
-	app.NewRequest("GET", "/static/embed/app_test.go")
-	app.NewRequest("GET", "/static/index/")
-	app.NewRequest("GET", "/static/index/", NewClientHeader(HeaderAccept, MimeTextHTML))
-	app.NewRequest("GET", "/static/index/static/")
-	app.NewRequest("GET", "/static/index/403.js")
-	app.NewRequest("GET", "/static/fs1/")
+	app.NewRequest("GET", "/static/fs1/app_test.go")
 	app.NewRequest("GET", "/static/fs2/")
+	app.NewRequest("GET", "/static/fs2/", NewClientHeader(HeaderAccept, MimeTextHTML))
+	app.NewRequest("GET", "/static/fs2/static/")
+	app.NewRequest("GET", "/static/fs2/403.js")
+	app.NewRequest("GET", "/static/fs3/")
+	app.NewRequest("GET", "/static/fs4/")
+	app.NewRequest("GET", "/static/fs5/app_test.go")
+	app.NewRequest("GET", "/static/fs6/")
+	app.NewRequest("GET", "/static/fs7/")
 	NewFileSystems(".", http.Dir("."), NewFileSystems(".", "."))
+	NewFileSystemPrefix("", "", nil)
 
 	app.CancelFunc()
 	app.Run()
@@ -112,9 +120,18 @@ func RenderTestErr(ctx Context, i any) error {
 type request017 struct {
 	Name string
 }
-type handlerControler4 struct{ ControllerAutoRoute }
+type handler4Controler struct{ ControllerAutoRoute }
 
-func (ctl handlerControler4) Get(Context) {}
+func (ctl handler4Controler) Get(Context) {}
+
+type handler5Controler[T any] struct {
+	ControllerAutoType[T]
+}
+
+func (*handler5Controler[T]) GetX1()              {}
+func (*handler5Controler[T]) GetX2() error        { return nil }
+func (*handler5Controler[T]) GetX3(Context)       {}
+func (*handler5Controler[T]) GetX4(Context, *int) {}
 
 func TestHandlerRegister(t *testing.T) {
 	app := NewApp()
@@ -123,7 +140,8 @@ func TestHandlerRegister(t *testing.T) {
 	app.SetValue(ContextKeyContextPool, NewContextBasePool(app))
 	app.SetValue(ContextKeyRouter, NewRouter(nil).Group(" loggerkind=~all"))
 
-	app.AddController(new(handlerControler4))
+	app.AddController(new(handler4Controler))
+	app.AddController(new(handler5Controler[int]))
 	app.AddHandlerExtend(
 		00,
 		00, 00,
@@ -183,9 +201,9 @@ func TestHandlerRegister(t *testing.T) {
 		"",
 		"",
 		http.FileServer(http.Dir(".")),
-		"Client: parse not suppert Content-Type: text/plain",
-		"Client: parse not suppert Content-Type: text/plain",
-		"Client: parse not suppert Content-Type: text/plain",
+		fmt.Sprintf(ErrClientParseBodyError, "text/plain"),
+		fmt.Sprintf(ErrClientParseBodyError, "text/plain"),
+		fmt.Sprintf(ErrClientParseBodyError, "text/plain"),
 		func() {},
 		"",
 		"",
@@ -298,11 +316,45 @@ func TestHandlerRegister(t *testing.T) {
 	app.Run()
 }
 
+//go:noinline
+func ff22func(fs embed.FS) HandlerFunc {
+	return HandlerEmpty
+}
+func ff33func(fs embed.FS) HandlerFunc {
+	return func(ctx Context) {
+		fs.Open(ctx.Path())
+	}
+}
+
+//go:noinline
 func TestHandlerList(t *testing.T) {
+	names := []string{
+		"github.com/eudore/eudore.NewHandlerFunc(func())",
+		"github.com/eudore/eudore.NewHandlerFuncAny(func() interface {})",
+		"github.com/eudore/eudore.NewHandlerFuncError(func() error)",
+		"github.com/eudore/eudore.NewHandlerFuncAnyError(func() (interface {}, error))",
+		"github.com/eudore/eudore.NewHandlerFuncContextAny(func(eudore.Context) interface {})",
+		"github.com/eudore/eudore.NewHandlerFuncContextError(func(eudore.Context) error)",
+		"github.com/eudore/eudore.NewHandlerFuncContextAnyError(func(eudore.Context) (interface {}, error))",
+		"github.com/eudore/eudore.NewHandlerFuncContextMapAnyError(func(eudore.Context, map[string]interface {}) (interface {}, error))",
+		"github.com/eudore/eudore.NewHandlerHTTPFunc1(http.HandlerFunc)",
+		"github.com/eudore/eudore.NewHandlerHTTPFunc2(func(http.ResponseWriter, *http.Request))",
+		"github.com/eudore/eudore.NewHandlerFileEmbed(embed.FS)",
+		"github.com/eudore/eudore.NewHandlerHTTPHandler(http.Handler)",
+		"github.com/eudore/eudore.NewHandlerFileIOFS(fs.FS)",
+		"github.com/eudore/eudore.NewHandlerFileSystem(http.FileSystem)",
+		"github.com/eudore/eudore.NewHandlerAnyContextTypeAnyError(interface {})",
+		"/ command-line-arguments_test.TestHandlerList.func1(interface {})",
+	}
 	app := NewApp()
-	app.SetValue(ContextKeyLogger, DefaultLoggerNull)
+	// app.SetValue(ContextKeyLogger, DefaultLoggerNull)
 	app.AddHandlerExtend("/", func(any) HandlerFunc {
 		return nil
+	})
+
+	app.AddHandlerExtend("/api/user", ff33func)
+	app.AddHandlerExtend("/api/user", func(func()) HandlerFunc {
+		return HandlerEmpty
 	})
 	app.AddHandlerExtend("/api/user", func(any) HandlerFunc {
 		return HandlerEmpty
@@ -315,6 +367,15 @@ func TestHandlerList(t *testing.T) {
 		return nil
 	})
 	api.AnyFunc("/user/info", "hello")
+	api.AnyFunc("/user/info", func() {})
+	api.AnyFunc("/user/index", root)
+	app.AnyFunc("/user/index", http.NotFoundHandler())
+	app.AnyFunc("/user/index", func() {})
+	for i, str := range api.(HandlerExtender).List() {
+		if i < len(names) && str != names[i] {
+			panic(str)
+		}
+	}
 	t.Log(strings.Join(api.(HandlerExtender).List(), "\n"))
 
 	app.CancelFunc()
@@ -359,8 +420,6 @@ func TestHandlerRPC(t *testing.T) {
 }
 
 func TestHandlerFunc(t *testing.T) {
-	SetHandlerAliasName(new(request017), "")
-	SetHandlerAliasName(new(request017), "handlerHttp1-test")
 	defer func() {
 		recover()
 	}()

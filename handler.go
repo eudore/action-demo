@@ -1,6 +1,7 @@
 package eudore
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	iofs "io/fs"
@@ -12,6 +13,8 @@ import (
 	"runtime"
 	"sort"
 	"strconv"
+	"strings"
+	"sync"
 	"unsafe"
 )
 
@@ -22,7 +25,7 @@ type HandlerFunc func(Context)
 // request processing functions.
 type HandlerFuncs = []HandlerFunc
 
-// The HandlerEmpty function is an empty handler.
+// HandlerEmpty function is an empty handler.
 func HandlerEmpty(Context) {
 	// Do nothing because empty handler does not process entries.
 }
@@ -35,6 +38,8 @@ func HandlerRouter403(ctx Context) {
 }
 
 // HandlerRouter404 function defines the [StatusNotFound] processing.
+//
+// You can use [middleware.NewRouterFunc] to create route-based 404 HandlerFunc.
 func HandlerRouter404(ctx Context) {
 	const page404 = "404 Not Found"
 	ctx.WriteStatus(StatusNotFound)
@@ -51,18 +56,20 @@ func HandlerRouter405(ctx Context) {
 	_ = ctx.Render(page405)
 }
 
+// HandlerMethodTrace function processes MethodTrace request, echoing the
+// received request headers and body back to the client as the response body.
 func HandlerMethodTrace(ctx Context) {
 	r := ctx.Request()
-	ctx.SetHeader(HeaderContentType, "message/http")
+	ctx.SetHeader(HeaderContentType, "message/http") // rfc7231 - 4.3.8
 	ctx.WriteHeader(StatusOK)
-	fmt.Fprintf(ctx, "%s %s %s\r\n", r.Method, r.URL.Path, r.Proto)
+	_, _ = fmt.Fprintf(ctx, "%s %s %s\r\n", r.Method, r.URL.Path, r.Proto)
 	if r.Host != "" {
 		fmt.Fprintf(ctx, "Host: %s\r\n", r.Host)
 	}
 	_ = r.Header.Write(ctx)
 }
 
-// The NewHandlerFuncsFilter function filters out nil objects in [HandlerFuncs].
+// NewHandlerFuncsFilter function filters out nil objects in [HandlerFuncs].
 func NewHandlerFuncsFilter(hs HandlerFuncs) HandlerFuncs {
 	var size int
 	for _, h := range hs {
@@ -108,89 +115,109 @@ func NewHandlerFuncsCombine(hs1, hs2 HandlerFuncs) HandlerFuncs {
 	return hs
 }
 
-type reflectValue struct {
-	_    *uintptr
-	ptr  uintptr
-	flag uintptr
-}
+var (
+	handlerFuncLocker   = sync.RWMutex{}
+	handlerFuncCreator  = make(map[uintptr]reflect.Type)
+	handlerNameFormater = strings.NewReplacer("*", "", "(", "", ")", "")
+	handlerParamsName   = "[...]"
+	handlerPackageName  = typeHandlerFunc.PkgPath() + "."
+	handlerCallName     = runtime.FuncForPC(reflect.ValueOf(embed.FS{}).Method(0).Pointer()).Name()
+)
 
-// The getFuncPointer function get the address of [HandlerFunc]
-// as the unique identifier id.
-func getFuncPointer(v reflect.Value) uintptr {
-	val := *(*reflectValue)(unsafe.Pointer(&v))
-	return val.ptr
-}
+const sizeofUintptr = unsafe.Sizeof(uintptr(0))
 
-// The SetHandlerAliasName function sets the original name of extension object.
-//
-// Used in the [NewHandlerExtenderBase] object and [ControllerInjectAutoRoute]
-// function to pass the controller function name.
-func SetHandlerAliasName(i any, name string) {
-	if name == "" {
-		return
-	}
-	v, ok := i.(reflect.Value)
-	if !ok {
-		v = reflect.ValueOf(i)
-	}
-	val := *(*reflectValue)(unsafe.Pointer(&v))
-	names := contextAliasName[val.ptr]
-	index := int(val.flag >> 10)
-	if len(names) <= index {
-		newnames := make([]string, index+1)
-		copy(newnames, names)
-		names = newnames
-		contextAliasName[val.ptr] = names
-	}
-	names[index] = name
-}
-
-func getHandlerAliasName(v reflect.Value) string {
-	val := *(*reflectValue)(unsafe.Pointer(&v))
-	names := contextAliasName[val.ptr]
-	index := int(val.flag >> 10)
-	if index < len(names) {
-		return names[index]
-	}
-	return ""
-}
-
-// SetHandlerFuncName function sets the name of a [HandlerFunc].
-//
-// Note: functions are not comparable, the method names of objects are
-// overwritten by other method names.
-func SetHandlerFuncName(i HandlerFunc, name string) {
-	ptr := getFuncPointer(reflect.ValueOf(i))
-	if name == "" {
-		delete(contextFuncName, ptr)
-		delete(contextSaveName, ptr)
-		return
-	}
-	contextSaveName[ptr] = name
-}
-
-// String method implements the [fmt.Stringer] interface
-// and output [HandlerFunc] name.
+// String method implements the [fmt.Stringer] interface and output
+// [HandlerFunc] name.
 //
 // This name may be inaccurate.
 // If a HandlerFunc is released after setting its name,
 // the new HandlerFunc uses the same address to obtain an incorrect name,
 // but the HandlerFunc is usually not released.
 func (h HandlerFunc) String() string {
-	rh := reflect.ValueOf(h)
-	ptr := getFuncPointer(rh)
-	name, ok := contextFuncName[ptr]
-	if ok {
-		return name
+	ptr := reflect.ValueOf(h).Pointer()
+	handlerFuncLocker.RLock()
+	t, ok := handlerFuncCreator[ptr]
+	handlerFuncLocker.RUnlock()
+
+	ext := ""
+	name := runtime.FuncForPC(ptr).Name()
+	switch {
+	case name == handlerCallName:
+		name = getReflectMethodName(unsafe.Pointer(&h))
+	case !ok:
+		name = strings.TrimSuffix(name, "-fm")
+	case t.Kind() == reflect.Func:
+		ext = name
+		offset := sizeofUintptr
+		if strings.Contains(ext, handlerParamsName) {
+			offset *= 3
+		}
+
+		addr := unsafe.Add(*(*unsafe.Pointer)(unsafe.Pointer(&h)), offset)
+		name = runtime.FuncForPC(**(**uintptr)(addr)).Name()
+		if name == handlerCallName {
+			name = getReflectMethodName(addr)
+		}
+	default:
+		ext = name
+		name = t.String()
+		pkg := t.PkgPath()
+		pos := strings.LastIndexByte(pkg, '/')
+		if pos != -1 {
+			name = pkg[:pos+1] + name
+		}
 	}
-	name, ok = contextSaveName[ptr]
-	if ok {
-		return name
+
+	if ext != "" {
+		pos := strings.LastIndex(ext, ".func")
+		if pos != -1 {
+			ext = ext[:pos]
+		}
+		ext = strings.TrimPrefix(ext, handlerPackageName)
+		ext = strings.ReplaceAll(ext, handlerParamsName, "")
+		ext = "(" + ext + ")"
 	}
-	return runtime.FuncForPC(rh.Pointer()).Name()
+	return handlerNameFormater.Replace(name) + ext
 }
 
-// The NewHandlerFileSystems function uses multiple any values to create
+// methodValue from src/reflect/makefunc.go .
+type methodValue struct {
+	_ [4]uintptr
+	m int
+	r reflect.Value
+}
+
+func getReflectMethodName(addr unsafe.Pointer) string {
+	ptr := *(**methodValue)(addr)
+	name := runtime.FuncForPC(ptr.r.Type().Method(ptr.m).Func.Pointer()).Name()
+	if strings.Contains(name, handlerParamsName) {
+		tname := ptr.r.Type().String()
+		start := strings.IndexByte(tname, '[')
+		end := strings.LastIndexByte(tname, ']')
+		if start != -1 && start < end {
+			name = strings.ReplaceAll(name, handlerParamsName, tname[start:end+1])
+		}
+	}
+	return name
+}
+
+// NewHandlerFileEmbed function creates the [embed.FS] extension function.
+//
+// Same function as [NewHandlerFileIOFS], but with a different display name.
+//
+// refer [NewHandlerFileSystem].
+func NewHandlerFileEmbed(fs embed.FS) HandlerFunc {
+	return NewHandlerFileSystem(NewFileSystems(fs))
+}
+
+// NewHandlerFileIOFS function creates the [iofs.FS] extension function.
+//
+// refer [NewHandlerFileSystem].
+func NewHandlerFileIOFS(fs iofs.FS) HandlerFunc {
+	return NewHandlerFileSystem(NewFileSystems(fs))
+}
+
+// NewHandlerFileSystems function uses multiple any values to create
 // an [http.FileSystem] handler for static files.
 //
 // refer [NewHandlerFileSystem] and [NewFileSystems].
@@ -198,15 +225,7 @@ func NewHandlerFileSystems(dirs ...any) HandlerFunc {
 	return NewHandlerFileSystem(NewFileSystems(dirs...))
 }
 
-// The NewHandlerFileEmbed function creates the [iofs.FS] extension function.
-//
-// refer [NewHandlerFileSystem].
-func NewHandlerFileEmbed(fs iofs.FS) HandlerFunc {
-	return NewHandlerFileSystem(NewFileSystems(fs))
-}
-
-// The NewHandlerFileSystem function creates an [http.FileSystem] extension
-// function.
+// NewHandlerFileSystem function creates an [http.FileSystem] extension function.
 //
 // Open the file path as [ParamPrefix] join ctx.GetParam("*").
 //
@@ -216,7 +235,7 @@ func NewHandlerFileSystem(fs http.FileSystem) HandlerFunc {
 	embedTime := DefaultHandlerEmbedTime
 	cacheControl := DefaultHandlerEmbedCacheControl
 	return func(ctx Context) {
-		path := filepath.Join(ctx.GetParam(ParamPrefix), ctx.GetParam("*"))
+		path := ctx.GetParam("*")
 		if path == "" {
 			path = "."
 		}
@@ -249,7 +268,7 @@ func NewHandlerFileSystem(fs http.FileSystem) HandlerFunc {
 			http.ServeContent(w, ctx.Request(), stat.Name(), modtime, file)
 		case GetAnyByString[bool](ctx.GetParam(ParamAutoIndex)):
 			h := ctx.Response().Header()
-			h.Set(HeaderCacheControl, "no-cache")
+			h.Set(HeaderCacheControl, HeaderValueNoCache)
 			h.Set(HeaderLastModified, modtime.UTC().Format(http.TimeFormat))
 			handlerStaticDirs(ctx, "/"+ctx.GetParam("*"), file)
 		default:
@@ -317,8 +336,8 @@ func formatSize(n int64) string {
 // Combine multiple [http.FileSystem].
 type fileSystems []http.FileSystem
 
-// The NewFileSystems function creates a hybrid [http.FileSystem] object
-// that returns the first [http.File] from multiple [http.FileSystems].
+// NewFileSystems function creates a hybrid [http.FileSystem] object that
+// returns the first [http.File] from multiple [http.FileSystems].
 //
 // If the type is string and path exists, it will be converted to [http.Dir];
 // If the type is [iofs.FS] or [embed.FS] converted to [http.FS];
@@ -346,15 +365,43 @@ func NewFileSystems(dirs ...any) http.FileSystem {
 	return fs
 }
 
-// The Open method returns the first [http.File] from multiple
+// Open method returns the first [http.File] from multiple
 // [http.FileSystems].
-func (fs fileSystems) Open(name string) (file http.File, err error) {
-	err = os.ErrNotExist
+func (fs fileSystems) Open(name string) (http.File, error) {
+	var file http.File
+	err := os.ErrNotExist
 	for _, f := range fs {
 		file, err = f.Open(name)
 		if err == nil {
 			return file, nil
 		}
 	}
-	return
+	return nil, err
+}
+
+type fileSystemPrefix struct {
+	http.FileSystem
+	trim string
+	join string
+}
+
+// NewFileSystemPrefix creates wrapped [http.FileSystem] that adds or removes
+// path prefix.
+//
+// First trim the prefix, then add the directory in the join.
+func NewFileSystemPrefix(trim, join string, fs http.FileSystem) http.FileSystem {
+	if trim == "" && join == "" {
+		return fs
+	}
+	return &fileSystemPrefix{fs, trim, join}
+}
+
+func (fs *fileSystemPrefix) Open(name string) (http.File, error) {
+	if fs.trim != "" {
+		name = strings.TrimPrefix(name, fs.trim)
+	}
+	if fs.join != "" {
+		name = filepath.Join(fs.join, name)
+	}
+	return fs.FileSystem.Open(name)
 }

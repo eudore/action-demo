@@ -27,7 +27,7 @@ func NewHandlerFuncAny(fn func() any) HandlerFunc {
 		if ctx.Response().Size() == 0 {
 			err := ctx.Render(data)
 			if err != nil {
-				ctx.WithField(ParamCaller, name).Fatal(err)
+				ctx.WithField(FieldCaller, name).Fatal(err)
 			}
 		}
 	}
@@ -39,7 +39,7 @@ func NewHandlerFuncError(fn func() error) HandlerFunc {
 	return func(ctx Context) {
 		err := fn()
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 		}
 	}
 }
@@ -53,7 +53,7 @@ func NewHandlerFuncAnyError(fn func() (any, error)) HandlerFunc {
 			err = ctx.Render(data)
 		}
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 		}
 	}
 }
@@ -66,7 +66,7 @@ func NewHandlerFuncContextAny(fn func(Context) any) HandlerFunc {
 		if ctx.Response().Size() == 0 {
 			err := ctx.Render(data)
 			if err != nil {
-				ctx.WithField(ParamCaller, name).Fatal(err)
+				ctx.WithField(FieldCaller, name).Fatal(err)
 			}
 		}
 	}
@@ -78,7 +78,7 @@ func NewHandlerFuncContextError(fn func(Context) error) HandlerFunc {
 	return func(ctx Context) {
 		err := fn(ctx)
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 		}
 	}
 }
@@ -92,7 +92,7 @@ func NewHandlerFuncContextAnyError(fn func(Context) (any, error)) HandlerFunc {
 			err = ctx.Render(data)
 		}
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 		}
 	}
 }
@@ -103,7 +103,7 @@ func NewHandlerFuncContextType[T any](fn func(Context, T)) HandlerFunc {
 		req := new(T)
 		err := ctx.Bind(req)
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 			return
 		}
 
@@ -117,13 +117,13 @@ func NewHandlerFuncContextTypeError[T any](fn func(Context, T) error) HandlerFun
 		req := new(T)
 		err := ctx.Bind(req)
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 			return
 		}
 
 		err = fn(ctx, *req)
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 		}
 	}
 }
@@ -134,7 +134,7 @@ func NewHandlerFuncContextTypeAny[T any](fn func(Context, T) any) HandlerFunc {
 		req := new(T)
 		err := ctx.Bind(req)
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 			return
 		}
 
@@ -142,7 +142,7 @@ func NewHandlerFuncContextTypeAny[T any](fn func(Context, T) any) HandlerFunc {
 		if ctx.Response().Size() == 0 {
 			err := ctx.Render(data)
 			if err != nil {
-				ctx.WithField(ParamCaller, name).Fatal(err)
+				ctx.WithField(FieldCaller, name).Fatal(err)
 			}
 		}
 	}
@@ -154,7 +154,7 @@ func NewHandlerFuncContextTypeAnyError[T any](fn func(Context, T) (any, error)) 
 		req := new(T)
 		err := ctx.Bind(req)
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 			return
 		}
 
@@ -163,7 +163,7 @@ func NewHandlerFuncContextTypeAnyError[T any](fn func(Context, T) (any, error)) 
 			err = ctx.Render(data)
 		}
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 		}
 	}
 }
@@ -221,7 +221,7 @@ func NewHandlerAnyContextTypeAnyError(fn any) HandlerFunc {
 		// check call err.
 		err, ok := vals[1].Interface().(error)
 		if ok {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 			return
 		}
 
@@ -253,7 +253,7 @@ func NewHandlerFuncContextMapAnyError(fn func(Context, map[string]any) (any, err
 			err = ctx.Render(resp)
 		}
 		if err != nil {
-			ctx.WithField(ParamCaller, name).Fatal(err)
+			ctx.WithField(FieldCaller, name).Fatal(err)
 		}
 	}
 }

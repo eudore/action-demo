@@ -74,7 +74,7 @@ type ClientTraceConnect struct {
 	Error    error         `json:"error,omitempty" yaml:"error,omitempty"`
 }
 
-// The NewClientOption function creates [ClientOption] using any options.
+// NewClientOption function creates [ClientOption] using any options.
 //
 // If you add an unsupported type, it will panic [ErrClientOptionInvalidType].
 func NewClientOption(options []any) *ClientOption {
@@ -258,7 +258,7 @@ func (o *ClientOption) release(resp *http.Response) error {
 	return nil
 }
 
-// The NewClientOptionHost function creates [ClientOption] setting request Host.
+// NewClientOptionHost function creates [ClientOption] setting request Host.
 func NewClientOptionHost(host string) *ClientOption {
 	return &ClientOption{Host: strings.TrimSuffix(host, ":")}
 }
@@ -278,7 +278,7 @@ func NewClientOptionURL(host string) *ClientOption {
 	return &ClientOption{URL: u}
 }
 
-// The NewClientQuery function creates [ClientOption] set the request uri param.
+// NewClientQuery function creates [ClientOption] set the request uri param.
 func NewClientQuery(key, val string) url.Values {
 	if val == "" {
 		return nil
@@ -286,7 +286,7 @@ func NewClientQuery(key, val string) url.Values {
 	return url.Values{key: {val}}
 }
 
-// The NewClientHeader function creates [ClientOption] set the request Header.
+// NewClientHeader function creates [ClientOption] set the request Header.
 func NewClientHeader(key, val string) http.Header {
 	if val == "" {
 		return nil
@@ -294,8 +294,8 @@ func NewClientHeader(key, val string) http.Header {
 	return http.Header{key: []string{val}}
 }
 
-// NewClientOptionBasicauth function creates [ClientOption] set BasicAuth users.
-func NewClientOptionBasicauth(username, password string) http.Header {
+// NewClientOptionBasicAuth function creates [ClientOption] set BasicAuth users.
+func NewClientOptionBasicAuth(username, password string) http.Header {
 	auth := username + ":" + password
 	return NewClientHeader(
 		HeaderAuthorization,
@@ -303,20 +303,20 @@ func NewClientOptionBasicauth(username, password string) http.Header {
 	)
 }
 
-// The NewClientOptionBearer function creates [ClientOption] set
+// NewClientOptionBearerAuth function creates [ClientOption] set
 // request Bearer [HeaderAuthorization].
-func NewClientOptionBearer(bearer string) http.Header {
+func NewClientOptionBearerAuth(bearer string) http.Header {
 	return NewClientHeader(HeaderAuthorization, "Bearer "+bearer)
 }
 
-// The NewClientOptionUserAgent function creates [ClientOption] set
-// the request [HeaderUserAgent].
+// NewClientOptionUserAgent function creates [ClientOption] set the request
+// [HeaderUserAgent].
 func NewClientOptionUserAgent(ua string) http.Header {
 	return NewClientHeader(HeaderUserAgent, ua)
 }
 
-// The NewClientTraceWithContext function initializes and binds [ClientTrace] to
-// [ontext.Context].
+// NewClientTraceWithContext function initializes and binds [ClientTrace] to
+// [context.Context].
 //
 //nolint:funlen
 func NewClientTraceWithContext(ctx context.Context, trace *ClientTrace,

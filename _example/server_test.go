@@ -17,11 +17,18 @@ import (
 
 func TestServerStd(t *testing.T) {
 	NewServer(nil)
-	ln, err := DefaultServerListen("tcp", ":8088")
+	ln1, err := DefaultServerListen("tcp", ":8088")
 	if err != nil {
 		t.Fatal(err)
 		return
 	}
+	ln2, err := DefaultServerListen("tcp", ":8089")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	ln2.Close()
+
 	ctx := context.WithValue(context.Background(),
 		ContextKeyHTTPHandler, http.NotFoundHandler(),
 	)
@@ -32,7 +39,7 @@ func TestServerStd(t *testing.T) {
 		ReadTimeout:       -1,
 		ReadHeaderTimeout: -1,
 		WriteTimeout:      -1,
-		IdleTimeout:       -1,
+		IdleTimeout:       60 * TimeDuration(time.Second),
 	})
 	srv.(interface{ Mount(context.Context) }).Mount(ctx)
 	srv.SetHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +51,8 @@ func TestServerStd(t *testing.T) {
 			w.WriteHeader(200)
 		}
 	}))
-	go srv.Serve(ln)
+	go srv.Serve(ln1)
+	go srv.Serve(ln2)
 	time.Sleep(time.Millisecond * 20)
 
 	ctx = context.WithValue(context.Background(), ContextKeyServer, srv)

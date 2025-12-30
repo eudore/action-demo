@@ -67,10 +67,10 @@ func TestClientOptions(t *testing.T) {
 			tp.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 		}
 	})
-	app.Debug(app.GetRequest("https://localhost:8088/app"))
+	app.GetRequest("https://localhost:8088/app")
 
 	trace := &ClientTrace{}
-	app.WithField("trace", trace).Debug(client.GetRequest("https://localhost:8088/client", trace))
+	client.GetRequest("https://localhost:8088/client", trace)
 
 	func() {
 		defer func() { recover() }()
@@ -91,13 +91,15 @@ func TestClientHooks(t *testing.T) {
 	jar, _ := cookiejar.New(nil)
 
 	app := NewApp()
+	app.SetValue(ContextKeyRouter, NewRouter(nil).Group(" loggerkind=~handler|~middleware"))
 	app.SetValue(ContextKeyClient, NewClientCustom(
+		NewClientHookCookie(jar),
 		NewClientHookCookie(jar),
 		NewClientHookTimeout(time.Millisecond*100),
 		NewClientHookRedirect(nil),
 		NewClientHookRetry(3, nil, nil),
 		NewClientHookLogger(LoggerInfo, time.Millisecond*20),
-		NewClientHookDigest("user", "Guest"),
+		NewClientHookDigestAuth("user", "Guest"),
 	))
 	app.Client.(interface{ Metadata() interface{} }).Metadata()
 
@@ -276,6 +278,7 @@ func TestClientBody(t *testing.T) {
 		Name string
 	}
 	app := NewApp()
+	app.SetValue(ContextKeyRouter, NewRouter(nil).Group(" loggerkind=~handler"))
 	app.SetValue(ContextKeyClient, app.NewClient(NewClientHookLogger(LoggerError, time.Millisecond*20)))
 	app.AnyFunc("/redirect", func(ctx Context) {
 		ctx.Body()
@@ -299,8 +302,8 @@ func TestClientBody(t *testing.T) {
 	bodyForm.AddFile("file", "buffer.txt", bytes.NewBufferString("file buffer"))
 	bodyForm.AddFile("file", "rc.txt", io.NopCloser(bytes.NewBufferString("file rc")))
 	bodyForm.AddFile("file", "none.txt", nil)
-	bodyForm.AddFile("file", "", "appNew.go")
 	bodyForm.AddFile("file", "", "README.md")
+	bodyForm.GetBody()
 	bodyForm.Close()
 	app.GetRequest("/body/formfile", bodyForm)
 
@@ -308,7 +311,7 @@ func TestClientBody(t *testing.T) {
 	bodyForm.AddValue("name", "eudore")
 	bodyJSON := NewClientBodyJSON(nil)
 	bodyJSON.AddValue("name", "eudore")
-	bodyJSON.AddFile("file", "", "appNew.go")
+	bodyJSON.AddFile("file", "", "notexist.go")
 	bodyJSON = NewClientBodyJSON(&Body{})
 	bodyJSON.AddValue("name", "eudore")
 	bodyJSON.Close()
@@ -331,59 +334,66 @@ func TestClientBody(t *testing.T) {
 
 func TestClientAuthorization(t *testing.T) {
 	digest := []string{
-		`Digest realm="digest@eudore.cn", algorithm=MD5, nonce="H4GiTo0v", qop="auth, auth-int", opaque="CUYo5tdS"`,
-		`Digest realm="digest@eudore.cn", algorithm=MD5, nonce="H4GiTo0v", opaque="CUYo5tdS",qop="auth-int"`,
-		`Digest realm="digest@eudore.cn", algorithm=MD5, nonce="H4GiTo0v"`,
-		`Digest realm="digest@eudore.cn", algorithm=MD5-SESS, nonce="H4GiTo0v"`,
-		`Digest realm="digest@eudore.cn", algorithm=SHA-256, nonce="H4GiTo0v"`,
-		`Basic  realm="digest@eudore.cn", algorithm=MD5, nonce="H4GiTo0v", opaque="CUYo5tdS"`,
-		`Digest realm="digest@eudore.cn", algorithm, nonce="H4GiTo0v", opaque="CUYo5tdS"`,
-		`Digest realm="digest@eudore.cn", algorithm=MD5, nonce="H4GiTo0v", cnonce="H4GiTo0v", opaque="CUYo5tdS"`,
-		`Digest realm="digest@eudore.cn", algorithm=RCR32, nonce="H4GiTo0v", opaque="CUYo5tdS"`,
-		`Digest realm="digest@eudore.cn", algorithm=MD5, nonce="H4GiTo0v", opaque="CUYo5tdS", qop=int`,
+		`Digest realm="digest@eudore.cn"`,
+		`Digest realm="digest@eudore.cn", algorithm=MD5`,
+		`Digest realm="digest@eudore.cn", algorithm=SHA-256`,
+		`Digest realm="digest@eudore.cn", algorithm=SHA-512-256`,
+		`Digest realm="digest@eudore.cn", algorithm=MD5-SESS`,
+		`Digest realm="digest@eudore.cn", domain="internalhost", algorithm=MD5, qop="auth, auth-int", opaque="CUYo5tdS", nonce="H4GiTo0v"`,
+		`Digest realm="digest@eudore.cn", qop="auth-int"`,
+		`Digest realm="digest@eudore.cn", qop="int"`,
+		`Digest realm="digest@eudore.cn", algorithm`,
+		`Digest realm="digest@eudore.cn", algorithm=RCR32`,
+		`Basic  realm="digest@eudore.cn"`,
 	}
 
 	app := NewApp()
-	app.GetFunc("/500", func(ctx Context) {
-		ctx.WriteHeader(StatusInternalServerError)
-	})
-	app.GetFunc("/auth", func(ctx Context) {
-		ctx.Debug(ctx.GetHeader(HeaderAuthorization))
-	})
+	app.SetValue(ContextKeyRouter, NewRouter(nil).Group(" loggerkind=~handler"))
+	app.GetFunc("/auth", func(ctx Context) {})
 	app.GetFunc("/digest", func(ctx Context) {
 		if ctx.GetHeader(HeaderAuthorization) == "" {
 			ctx.SetHeader(HeaderWWWAuthenticate, digest[GetAnyByString(ctx.GetQuery("d"), 0)])
 			ctx.WriteHeader(StatusUnauthorized)
-		} else {
-			ctx.Debug(ctx.GetHeader(HeaderAuthorization))
 		}
 	})
 
-	app.GetRequest("/auth", NewClientOptionBearer("Bearer .eyJ1c2VyX25hbWUiOiJHdWVzdCIsImV4cGlyYXRpb24iOjEwNDEzNzkyMDAwfQ.vNTXrJNVqRLLY01w6weQWMRo_HDeBeVpX4HZtVfYUBY"))
-	app.GetRequest("/auth", NewClientOptionBasicauth("Guest", ""))
+	app.GetRequest("/auth", NewClientOptionBearerAuth("Bearer .eyJ1c2VyX25hbWUiOiJHdWVzdCIsImV4cGlyYXRpb24iOjEwNDEzNzkyMDAwfQ.vNTXrJNVqRLLY01w6weQWMRo_HDeBeVpX4HZtVfYUBY"))
+	app.GetRequest("/auth", NewClientOptionBasicAuth("Guest", ""))
 
-	client := app.NewClient(NewClientHookDigest("Guest", "Guest"))
+	hook := NewClientHookDigestAuth("Guest", "Guest")
 	for i := range digest {
-		client.GetRequest("/digest", url.Values{"d": {fmt.Sprint(i)}})
+		status := 200
+		if i > 6 {
+			status = 401
+		}
+		app.GetRequest("/digest?d="+strconv.Itoa(i), hook, NewClientBodyJSON(digest), NewClientCheckStatus(status))
 	}
-	client.GetRequest("/digest?d=1", strings.NewReader("digest body"))
-	client.GetRequest("/digest?d=1", strings.NewReader("digest body"),
+	app.GetRequest("/digest?d=1", strings.NewReader("digest body"), hook,
 		func(req *http.Request) { req.GetBody = nil },
 	)
-	client.GetRequest("/500")
-	client.GetRequest("/digest?d=1", io.NopCloser(strings.NewReader("digest body")))
-
-	form := NewClientBodyForm(nil)
-	form.AddFile("file", "name", strings.NewReader("file bodt"))
-	client.GetRequest("/digest?d=1", form)
+	app.GetRequest("/digest?d=1", strings.NewReader("digest body"), hook,
+		func(req *http.Request) {
+			req.GetBody = func() (io.ReadCloser, error) {
+				return nil, io.EOF
+			}
+		},
+	)
+	// server field
+	NewClientDigest(`Digest uri="/", username="eudore", cnonce="0xff", nc=0000000f, response="hash"`)
 
 	app.CancelFunc()
 	app.Run()
 }
 
 func TestClientResponse(t *testing.T) {
+	loggernull := NewLoggerNull()
+	loggernull.SetLevel(LoggerDebug)
+
 	app := NewApp()
-	app.SetValue(ContextKeyClient, app.NewClient(NewClientHookLogger(LoggerError, time.Millisecond*20)))
+	app.SetValue(ContextKeyClient, app.NewClient(
+		context.WithValue(app, ContextKeyLogger, loggernull),
+	))
+	app.SetValue(ContextKeyRouter, NewRouter(nil).Group(" loggerkind=~handler"))
 	app.SetValue(ContextKeyRender, NewHandlerDataRenders(map[string]HandlerDataFunc{
 		MimeAll:             HandlerDataRenderJSON,
 		MimeText:            HandlerDataRenderText,
@@ -399,11 +409,13 @@ func TestClientResponse(t *testing.T) {
 	app.GetFunc("/body/*", func(Context) interface{} {
 		return MetadataConfig{Name: "config"}
 	})
-	app.GetFunc("/err", func(ctx Context) error {
-		return fmt.Errorf("test err")
+	app.GetFunc("/err", func(ctx Context) {
+		ctx.WriteStatus(500)
+		ctx.Render(NewContextMessgae(ctx, fmt.Errorf("test err"), nil))
 	})
-	app.GetFunc("/errcode", func(Context) error {
-		return NewErrorWithCode(fmt.Errorf("test code err"), 10005)
+	app.GetFunc("/errcode", func(ctx Context) {
+		ctx.WriteStatus(500)
+		ctx.Render(NewContextMessgae(ctx, NewErrorWithCode(fmt.Errorf("test code err"), 10005), nil))
 	})
 	app.GetFunc("/longbody", func(ctx Context) {
 		for i := 0; i < 50; i++ {

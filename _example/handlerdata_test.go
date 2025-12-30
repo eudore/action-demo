@@ -326,9 +326,9 @@ func TestHandlerDataValidateStruct(t *testing.T) {
 	fn("ptr1", []dataValidate01{{Name: "eudore"}}, "")
 	fn("any1", []dataValidate01{{Name: "eudore"}}, "")
 	fn("struct2", dataValidate02{}, "field ID check rule nozero fatal, value: (*int)(nil)")
-	fn("struct5", dataValidate03{ID: 32}, "field ID create rule not error: funcCreator create kind int func not err: not found or create func")
-	fn("struct4", dataValidate04{}, "field ID create rule not error: funcCreator create kind int func not err: not found or create func")
-	fn("struct4", dataValidate04{}, "field ID create rule not error: funcCreator create kind int func not err: not found or create func")
+	fn("struct5", dataValidate03{ID: 32}, "funcCreator create kind int func not err: "+ErrFuncCreatorNotFunc.Error())
+	fn("struct4", dataValidate04{}, "funcCreator create kind int func not err: "+ErrFuncCreatorNotFunc.Error())
+	fn("struct4", dataValidate04{}, "funcCreator create kind int func not err: "+ErrFuncCreatorNotFunc.Error())
 	fn("struct3", dataValidate05{}, "field ID check rule nozero fatal, value: 0")
 
 	app.CancelFunc()

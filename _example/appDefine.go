@@ -55,18 +55,18 @@ type Logger interface {
 	SetLevel(LoggerLevel)
 }
 
-type LoggerLevel int
+type LoggerLevel int32
 
 type loggerStd struct {
 	LoggerEntry
 	Handlers []LoggerHandler
 	Pool     *sync.Pool
 	Logger   bool
-	Depth    int32
 }
 
 type LoggerEntry struct {
 	Level   LoggerLevel
+	Depth   int32
 	Time    time.Time
 	Message string
 	Keys    []string
