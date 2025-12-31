@@ -13,7 +13,7 @@ jobs:
         with:
           go-version-file: go.mod
           cache: false
-      - uses: golangci/golangci-lint-action@v8
+      - uses: golangci/golangci-lint-action@v9
         continue-on-error: true
         with:
           args: --verbose --config .github/workflows/golang-lint.json
@@ -59,6 +59,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
