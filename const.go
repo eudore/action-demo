@@ -62,7 +62,7 @@ var (
 
 // Define global constants.
 const (
-	// EnvEudoreListeners defines the address of listen fd.
+	// EnvEudoreDaemonListeners defines the address of listen fd.
 	EnvEudoreDaemonListeners = "EUDORE_DAEMON_LISTENERS"
 	// EnvEudoreDaemonParentPID defines the pid of the parent process that the
 	// child process kills when restarting.

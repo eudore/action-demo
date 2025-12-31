@@ -11,7 +11,7 @@ import (
 	"github.com/eudore/eudore"
 )
 
-// The NewHandlerMetadata function creates [eudore.HandlerFunc] to access object
+// NewHandlerMetadata function creates [eudore.HandlerFunc] to access object
 // all data.
 //
 // If the data type is func(eudore.Context) any, the data to be rendered

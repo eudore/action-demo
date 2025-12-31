@@ -23,8 +23,8 @@ const (
 	FuncCreateSetFloat
 	FuncCreateSetBool
 	FuncCreateSetAny
-	FuncCreateNumber = FuncCreateAny
 )
+const FuncCreateNumber = FuncCreateAny
 
 // FuncCreateKind defines the types of functions that can be created by [FuncCreator].
 type FuncCreateKind uint8
@@ -101,7 +101,7 @@ func NewFuncCreatorExpr() FuncCreator {
 	}
 }
 
-// [NewFuncCreatorWithContext] function obtains the [ContextKeyFuncCreator]
+// NewFuncCreatorWithContext function obtains the [ContextKeyFuncCreator]
 // value from the [context.Context] as the FuncCreator,
 // and defaults to returning the [DefaultFuncCreator].
 func NewFuncCreatorWithContext(ctx context.Context) FuncCreator {

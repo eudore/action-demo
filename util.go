@@ -344,7 +344,7 @@ func (err *mulitError) Error() string {
 	return strings.Join(errs, ", ")
 }
 
-// GetError method returns the error, or null if there is no saved error.
+// Unwrap method returns the error, or null if there is no saved error.
 func (err *mulitError) Unwrap() []error {
 	return err.errs
 }

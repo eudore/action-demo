@@ -100,6 +100,7 @@ var (
 	// DefaultLoggerLevelQueryName defines the query name for change the default log level.
 	DefaultLoggerLevelQueryName = "eudore_debug"
 	// All page content.
+
 	DefaultPageAdmin          = adminStatic
 	DefaultPageBasicAuth      = "401 Unauthorized"
 	DefaultPageBearerAuth     = "401 Unauthorized: bearer error {{value}}"

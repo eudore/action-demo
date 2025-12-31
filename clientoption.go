@@ -38,8 +38,8 @@ type ClientTrace struct {
 	HTTPStart             time.Time            `json:"httpStart" yaml:"httpStart"`
 	HTTPDone              time.Time            `json:"httpDone" yaml:"httpDone"`
 	HTTPDuration          time.Duration        `json:"httpDuration" yaml:"httpDuration"`
-	DNSStart              time.Time            `json:"dnsStart,omitempty" yaml:"dnsStart,omitempty"`
-	DNSDone               time.Time            `json:"dnsDone,omitempty" yaml:"dnsDone,omitempty"`
+	DNSStart              time.Time            `json:"dnsStart" yaml:"dnsStart,omitempty"`
+	DNSDone               time.Time            `json:"dnsDone" yaml:"dnsDone,omitempty"`
 	DNSDuration           time.Duration        `json:"dnsDuration,omitempty" yaml:"dnsDuration,omitempty"`
 	DNSHost               string               `json:"dnsHost,omitempty" yaml:"dnsHost,omitempty"`
 	DNSAddrs              []net.IPAddr         `json:"dnsAddrs,omitempty" yaml:"dnsAddrs,omitempty"`
@@ -51,14 +51,14 @@ type ClientTrace struct {
 	GotConnLocalAddr      net.Addr             `json:"gotConnLocalAddr" yaml:"gotConnLocalAddr"`
 	GotConnRemoteAddr     net.Addr             `json:"gotConnRemoteAddr" yaml:"gotConnRemoteAddr"`
 	GotFirstResponseByte  time.Time            `json:"gotFirstResponseByte" yaml:"gotFirstResponseByte"`
-	TLSHandshakeStart     time.Time            `json:"tlsHandshakeStart,omitempty" yaml:"tlsHandshakeStart,omitempty"`
-	TLSHandshakeDone      time.Time            `json:"tlsHandshakeDone,omitempty" yaml:"tlsHandshakeDone,omitempty"`
+	TLSHandshakeStart     time.Time            `json:"tlsHandshakeStart" yaml:"tlsHandshakeStart,omitempty"`
+	TLSHandshakeDone      time.Time            `json:"tlsHandshakeDone" yaml:"tlsHandshakeDone,omitempty"`
 	TLSHandshakeDuration  time.Duration        `json:"tlsHandshakeDuration,omitempty" yaml:"tlsHandshakeDuration,omitempty"`
 	TLSHandshakeError     error                `json:"tlsHandshakeError,omitempty" yaml:"tlsHandshakeError,omitempty"`
 	TLSHandshakeIssuer    string               `json:"tlsHandshakeIssuer,omitempty" yaml:"tlsHandshakeIssuer,omitempty"`
 	TLSHandshakeSubject   string               `json:"tlsHandshakeSubject,omitempty" yaml:"tlsHandshakeSubject,omitempty"`
-	TLSHandshakeNotBefore time.Time            `json:"tlsHandshakeNotBefore,omitempty" yaml:"tlsHandshakeNotBefore,omitempty"`
-	TLSHandshakeNotAfter  time.Time            `json:"tlsHandshakeNotAfter,omitempty" yaml:"tlsHandshakeNotAfter,omitempty"`
+	TLSHandshakeNotBefore time.Time            `json:"tlsHandshakeNotBefore" yaml:"tlsHandshakeNotBefore,omitempty"`
+	TLSHandshakeNotAfter  time.Time            `json:"tlsHandshakeNotAfter" yaml:"tlsHandshakeNotAfter,omitempty"`
 	TLSHandshakeDigest    string               `json:"tlsHandshakeDigest,omitempty" yaml:"tlsHandshakeDigest,omitempty"`
 	WroteHeaders          http.Header          `json:"wroteHeaders,omitempty" yaml:"wroteHeaders,omitempty"`
 }
@@ -69,7 +69,7 @@ type ClientTraceConnect struct {
 	Network  string        `json:"network" yaml:"network"`
 	Address  string        `json:"address" yaml:"address"`
 	Start    time.Time     `json:"start" yaml:"start"`
-	Done     time.Time     `json:"done,omitempty" yaml:"done,omitempty"`
+	Done     time.Time     `json:"done" yaml:"done,omitempty"`
 	Duration time.Duration `json:"duration,omitempty" yaml:"duration,omitempty"`
 	Error    error         `json:"error,omitempty" yaml:"error,omitempty"`
 }
