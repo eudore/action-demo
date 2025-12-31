@@ -22,7 +22,7 @@ jobs:
       max-parallel: 16
       matrix:
         os: [macos, ubuntu, windows]
-        go: ["1.22"]
+        go: ["1.20"]
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}-latest
     env:
@@ -61,6 +61,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
