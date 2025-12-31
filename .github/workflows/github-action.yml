@@ -38,7 +38,7 @@ jobs:
       - name: Run move
         run: mv _example/*_test.go .
       - name: Run Go Get
-        run: go get golang.org/x/tools/cover@v0.24.1 && go mod tidy
+        run: go mod tidy && go get golang.org/x/tools/cover@v0.24.1
       - name: Run Bench
         run: go test -run='^$' -bench='.' .
       - name: Run Tests
@@ -59,6 +59,7 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
 
 
 
