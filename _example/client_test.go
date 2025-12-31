@@ -7,7 +7,6 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -19,7 +18,6 @@ import (
 
 	. "github.com/eudore/eudore"
 	. "github.com/eudore/eudore/middleware"
-	"golang.org/x/net/http2"
 )
 
 func TestClientOptions(t *testing.T) {
@@ -44,13 +42,7 @@ func TestClientOptions(t *testing.T) {
 		&ClientTrace{},
 		[]any{},
 	))
-	app.NewClient(&http2.Transport{
-		AllowHTTP: true,
-		DialTLS: func(network, addr string, cfg *tls.Config) (net.Conn, error) {
-			return tls.Dial(network, addr, cfg)
-		},
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	})
+	app.NewClient(http.DefaultTransport)
 	app.GetRequest("/?a=1")
 	app.GetRequest("/\007")
 	app.GetRequest("/", context.Background())

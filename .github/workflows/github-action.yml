@@ -38,7 +38,7 @@ jobs:
       - name: Run move
         run: mv _example/*_test.go .
       - name: Run Go Get
-        run: go get golang.org/x/net@v0.35.0 && go mod tidy
+        run: go mod tidy
       - name: Run Bench
         run: go test -run='^$' -bench='.' .
       - name: Run Tests
