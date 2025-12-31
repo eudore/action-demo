@@ -36,7 +36,7 @@ jobs:
           go-version: ${{ matrix.go }}
           cache-dependency-path: go.mod
       - name: Run move
-        run: mv _example/*_test.go .
+        run: cp _example/*_test.go .
       - name: Run Go Get
         run: go mod tidy && go get golang.org/x/tools/cover@v0.24.1
       - name: Run Bench
@@ -59,3 +59,4 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
+
