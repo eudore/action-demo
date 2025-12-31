@@ -403,7 +403,7 @@ func (cond *conditionRate) UnmarshalJSON(body []byte) error {
 }
 
 func (cond *conditionRate) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`{"speed":%d,"max":%d}`, cond.Speed, cond.Max)), nil
+	return fmt.Appendf(nil, `{"speed":%d,"max":%d}`, cond.Speed, cond.Max), nil
 }
 
 type conditionVersion struct {

@@ -64,7 +64,7 @@ func HandlerMethodTrace(ctx Context) {
 	ctx.WriteHeader(StatusOK)
 	_, _ = fmt.Fprintf(ctx, "%s %s %s\r\n", r.Method, r.URL.Path, r.Proto)
 	if r.Host != "" {
-		fmt.Fprintf(ctx, "Host: %s\r\n", r.Host)
+		_, _ = fmt.Fprintf(ctx, "Host: %s\r\n", r.Host)
 	}
 	_ = r.Header.Write(ctx)
 }
