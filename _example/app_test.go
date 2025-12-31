@@ -7,7 +7,6 @@ import (
 
 	. "github.com/eudore/eudore"
 	. "github.com/eudore/eudore/middleware"
-	_ "golang.org/x/tools/cover"
 )
 
 func init() {
