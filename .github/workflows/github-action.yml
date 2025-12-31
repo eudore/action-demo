@@ -22,7 +22,7 @@ jobs:
       max-parallel: 16
       matrix:
         os: [macos, ubuntu, windows]
-        go: ["1.20", "1.22", "1.24", "1.26"]
+        go: ["1.20", "1.22", "1.24"]
     name: ${{ matrix.os }} @ Go ${{ matrix.go }}
     runs-on: ${{ matrix.os }}-latest
     env:
