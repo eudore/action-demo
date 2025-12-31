@@ -11,6 +11,12 @@
 	"linters": {
 		"default": "none",
 		"enable": [
+			
+
+			"modernize",
+			"godoclint",
+			"unqueryvet",
+			"iotamixing",
 			"asasalint",
 			"asciicheck",
 			"bidichk",
@@ -128,3 +134,4 @@
 	},
 	"version": "2"
 }
+
