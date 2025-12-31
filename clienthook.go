@@ -181,16 +181,12 @@ func (hook *clientHookRedirect) RoundTrip(req *http.Request) (*http.Response, er
 		}
 
 		switch resp.StatusCode {
-		case StatusMovedPermanently, StatusFound, StatusSeeOther:
-		case StatusPermanentRedirect, StatusTemporaryRedirect:
-			if notGetBody(req) {
-				return resp, nil
-			}
+		case StatusMovedPermanently, StatusFound, StatusSeeOther,
+			StatusPermanentRedirect, StatusTemporaryRedirect:
 		default:
 			return resp, nil
 		}
 
-		closeBody(req.Body)
 		loc := resp.Header.Get(HeaderLocation)
 		if loc == "" {
 			return resp, nil
@@ -243,12 +239,11 @@ func newRequest(req *http.Request, loc string, code int) (*http.Request, error) 
 			r.Method = MethodGet
 		}
 	case StatusPermanentRedirect, StatusTemporaryRedirect:
-		if r.GetBody != nil {
-			r.Body, err = r.GetBody()
-			if err != nil {
-				return nil, err
-			}
-			r.ContentLength = req.ContentLength
+		r.Body = req.Body
+		r.ContentLength = req.ContentLength
+		err := resetBody(r)
+		if err != nil {
+			return nil, err
 		}
 	}
 	// Host
@@ -340,18 +335,12 @@ func (hook *clientHookRetry) RoundTrip(req *http.Request) (*http.Response, error
 
 		// reset body
 		if !isNetError(err) {
-			if notGetBody(req) {
+			err := resetBody(req)
+			if err != nil {
 				return resp, err
 			}
-			closeBody(req.Body)
 			if resp != nil {
 				_ = resp.Body.Close()
-			}
-			if req.GetBody != nil {
-				req.Body, err = req.GetBody()
-				if err != nil {
-					return resp, err
-				}
 			}
 		}
 		if i < hook.max {
@@ -590,31 +579,30 @@ func (hook *clientHookDigest) RoundTrip(req *http.Request) (*http.Response, erro
 	}
 
 	// try next
-	if notGetBody(req) {
-		return resp, ErrClientBodyNotGetBody
+	err = resetBody(req)
+	if err != nil {
+		return resp, err
 	}
 	_ = resp.Body.Close()
-	if req.GetBody != nil {
-		closeBody(req.Body)
-		req.Body, err = req.GetBody()
-		if err != nil {
-			return resp, err
-		}
-	}
 	return hook.RoundTrip(req)
 }
 
-func notGetBody(r *http.Request) bool {
-	if r.Body == nil || r.Body == http.NoBody {
-		return false
+func resetBody(req *http.Request) error {
+	if req.Body == nil || req.Body == http.NoBody {
+		return nil
 	}
-	return r.ContentLength != 0 && r.GetBody == nil
-}
-
-func closeBody(b io.ReadCloser) {
-	if b != nil {
-		_ = b.Close()
+	_ = req.Body.Close()
+	if req.ContentLength != 0 && req.GetBody == nil {
+		return ErrClientBodyNotGetBody
 	}
+	if req.GetBody != nil {
+		body, err := req.GetBody()
+		if err != nil {
+			return err
+		}
+		req.Body = body
+	}
+	return nil
 }
 
 var (

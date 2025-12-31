@@ -59,12 +59,3 @@ jobs:
         with:
           name: Coverage-eudore-${{ github.ref_name }}-${{ matrix.os }}-${{ matrix.go }}
           path: coverage.html
-
-
-
-
-
-
-
-
-
